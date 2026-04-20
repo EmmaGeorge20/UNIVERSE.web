@@ -8,6 +8,23 @@
 </head>
 
 <body>
+    <header>
+        <nav>
+            <div id="brand">
+                <img src="{{url_for('static', filename = 'Universe.png')}}" alt="Universe logo">
+                <span>UNI:VERSE</span>
+            </div>
+            <div id="nav-links">
+                <a href="#">Hem</a>
+                <a href="#">Boka handledning</a>
+                <a href="#">Om Oss</a>
+                <a href="#">Hjälp</a>
+            </div>
+        </nav>
+    </header>
     {% block body%}{% endblock %}
+    <footer>
+        <p>© 2026 UNI:VERSE</p>
+    </footer>
 </body>
 </html>
