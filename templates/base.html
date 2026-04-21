@@ -8,10 +8,10 @@
 </head>
 
 <body>
-    <header>
+    <header class="hero">
         <nav>
             <div id="brand">
-                <img src="{{url_for('static', filename = 'Universe.png')}}" alt="Universe logo">
+                <span class="brand-mark"><img src="{{url_for('static', filename = 'Universe.png')}}" alt="Universe logo"></span>
                 <span>UNI:VERSE</span>
             </div>
             <div id="nav-links">
@@ -19,6 +19,9 @@
                 <a href="#">Boka handledning</a>
                 <a href="#">Om Oss</a>
                 <a href="#">Hjälp</a>
+            </div>
+            <div id="login">
+               <a href="#">Logga in</a>
             </div>
         </nav>
     </header>

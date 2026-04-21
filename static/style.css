@@ -1,23 +1,60 @@
+:root {
+  color-scheme: light;
+  --bg: #fff7f4;
+  --bg-strong: #fff2f8;
+  --surface: #ffffff;
+  --surface-soft: #fff6fb;
+  --accent: #f2c2dc;
+  --accent-soft: #ffe8f2;
+  --accent-pink: #f08cc2;
+  --accent-yellow: #ffd873;
+  --brand-yellow: #f6d86a;
+  --brand-pink: #ef8dbb;
+  --brand-purple: #c65be8;
+  --text: #1b1917;
+  --muted: #6d6760;
+  --stroke: rgba(29, 28, 26, 0.12);
+  --shadow: 0 20px 50px rgba(39, 33, 26, 0.08);
+  --radius: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-    background-color: white;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    text-align: center;
+  font-family: "Manrope", "Helvetica Neue", sans-serif;
+  background: linear-gradient(180deg, var(--bg-strong) 0%, var(--bg) 45%, #ffffff 100%);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
 img {
-    width: 120px;
-    margin-top: 20px;
+  max-width: 100%;
+  display: block;
 }
-.nav {
+
+header.hero {
+  padding: 32px 7vw 90px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 243, 251, 0.9) 50%, rgba(255, 247, 226, 0.9) 100%);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(29, 28, 26, 0.08);
+}
+
+nav {
   display: flex;
+  justify-content: space-around;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
   padding: 12px 22px;
   max-width: 1200px;
   margin: 0 auto;
@@ -28,10 +65,55 @@ img {
   background: rgba(255, 255, 255, 0.8);
 }
 
-footer {
-    background-color: beige;
-    padding: 12px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+#brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Playfair Display", serif;
+  letter-spacing: 0.18em;
+  font-size: 18px;
+}
+
+#brand-mark {
+  width: 96px;
+  height: 96px;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+#brand-mark svg {
+  width: 68px;
+  height: 68px;
+}
+
+.brand-mark img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  display: block;
+}
+
+#nav-links {
+  display: flex;
+  gap: 22px;
+}
+
+.nav-links a:hover {
+  color: var(--text);
+}
+
+main{
+ flex-grow: 1;
+}
+
+main > p{
+    text-align: center;
+}
+
+footer{
+    text-align: center;
 }
