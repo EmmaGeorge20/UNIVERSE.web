@@ -6,7 +6,7 @@ app = Flask(__name__)
 #routes to webbpages
 @app.route("/")
 def index():
-    return render_template("home.html")
+    return render_template("index.html")
 
 
 
