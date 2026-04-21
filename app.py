@@ -11,7 +11,7 @@ users = {"student@uni.se" : {"password": "Password123", "role": "student"}
 #routes to webbpages
 @app.route("/")
 def index():
-    return render_template("home.html")
+    return render_template("index.html")
 
 
 #Kollar om lösenordet stämer lverens med kraven, minst 8 tecken, minst en bokstav och minst en siffra
