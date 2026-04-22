@@ -21,7 +21,11 @@
                 <a href="#">Hjälp</a>
             </div>
             <div id="login">
-               <a href="{{ url_for('login') }}">Logga in</a>
+                {% if session["user"] %}
+                <a href="{{ url_for('logout') }}">Logga ut</a>
+                {% else %}
+                <a href="{{ url_for('login') }}">Logga in</a>
+                {% endif %}
             </div>
         </nav>
     </header>
