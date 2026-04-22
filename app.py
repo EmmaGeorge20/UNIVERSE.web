@@ -39,7 +39,7 @@ def login():
             session["role"] = role   # Sparar kontotypen i sessionen
             return redirect(url_for("index"))
         else:
-            error = "Fel epost, lösenord eller kontotyp"  # Visar felmeddelande
+            error = "Fel epost, lösenord eller kontotyp"  # Visar felmeddelande felmeddelande
     return render_template("login.html", error=error)  # Laddar inloggningssidan
 
 # Route för utloggning, loggar användaren ut från sessionen och skickar tillbaka till startsidan
