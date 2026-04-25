@@ -21,7 +21,15 @@
                 <a href="#">Hjälp</a>
             </div>
             <div id="login">
+<<<<<<< Updated upstream
                <a href="{{ url_for('login') }}">Logga in</a>
+=======
+                {% if session["user"] %}
+                <a href="{{ url_for('auth.logout') }}">Logga ut</a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}">Logga in</a>
+                {% endif %}
+>>>>>>> Stashed changes
             </div>
         </nav>
     </header>
