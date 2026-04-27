@@ -11,5 +11,10 @@ def index():
 
 
 #runner and debugger
+<<<<<<< Updated upstream
 if __name__ in "__main__":
     app.run(debug=True)
+=======
+if __name__ == "__main__":
+    app.run(debug=True, port=5001)
+>>>>>>> Stashed changes
