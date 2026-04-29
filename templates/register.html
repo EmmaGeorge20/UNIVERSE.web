@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+   <title>Skapa konto - UNI:VERSE</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+{% endblock %}
+
+
+{% block body %}
+   <main class="register-page">
+       <section id="register" class="register-section">
+           <div class="register-shell">
+               <div class="register-form-card">
+                   <div class="register-form-heading">
+                       <div>
+                           <span class="soft-kicker">UNI:VERSE</span>
+                           <h2>Registrering</h2>
+                           <p>Alla fält krävs för att skapa ett komplett studentkonto.</p>
+                       </div>
+                       <span class="register-badge">Skyddad</span>
+                   </div>
+
+
+                   <form class="register-form">
+                       <div class="register-field-grid">
+                           <label>
+                               <span>Namn</span>
+                               <input type="text" name="first_name" autocomplete="given-name" placeholder="Förnamn" required>
+                           </label>
+
+
+                           <label>
+                               <span>Efternamn</span>
+                               <input type="text" name="last_name" autocomplete="family-name" placeholder="Efternamn" required>
+                           </label>
+
+
+                           <label class="full">
+                               <span>E-post</span>
+                               <input type="email" name="email" autocomplete="email" placeholder="namn@gmail.com" required>
+                           </label>
+
+
+                           <label>
+                               <span>Skola</span>
+                               <input type="text" name="school" autocomplete="organization" placeholder="Din skola" required>
+                           </label>
+
+
+                           <label>
+                               <span>Program</span>
+                               <input type="text" name="program" placeholder="Ditt program" required>
+                           </label>
+
+
+                           <label>
+                               <span>Telefonnummer</span>
+                               <input type="tel" name="phone" autocomplete="tel" placeholder="0701234567" required>
+                           </label>
+
+
+                           <label>
+                               <span>Lösenord</span>
+                               <input
+                                   type="password"
+                                   name="password"
+                                   autocomplete="new-password"
+                                   minlength="8"
+                                   pattern="(?=.*[A-Za-zÅÄÖåäö])(?=.*[0-9]).{8,}"
+                                   placeholder="Minst 8 tecken"
+                                   title="Lösenordet måste innehålla minst 8 tecken, minst en bokstav och minst en siffra."
+                                   required
+                               >
+                           </label>
+                       </div>
+
+
+                       <p class="password-note">
+                           Lösenordet måste innehålla minst 8 tecken, minst en bokstav och minst en siffra.
+                       </p>
+
+
+                       <div class="register-actions">
+                           <a href="{{ url_for('login') }}">Har du redan konto?</a>
+                           <button class="register-submit" type="submit">Skapa konto</button>
+                       </div>
+                   </form>
+               </div>
+
+
+               <aside class="register-intro" aria-label="UNI:VERSE registrering">
+                   <div>
+                       <span class="soft-kicker">Studentkonto</span>
+                       <h1>Registrera dig och skapa ditt eget universum</h1>
+                       <p>
+                           Ett komplett konto gör det enklare att hitta stöd, följa din
+                           utbildning och använda plattformens studentfunktioner.
+                       </p>
+
+
+                       <div class="register-checklist">
+                           <div>
+                               <span>1</span>
+                               <strong>Fyll i dina studentuppgifter</strong>
+                           </div>
+                           <div>
+                               <span>2</span>
+                               <strong>Välj ett säkert lösenord</strong>
+                           </div>
+                           <div>
+                               <span>3</span>
+                               <strong>Fortsätt till din startsida</strong>
+                           </div>
+                       </div>
+                   </div>
+
+
+                   <div class="student-pass" aria-label="Studentprofil">
+                       <div class="student-pass-top">
+                           <span>UNI:VERSE</span>
+                           <span>Student ID</span>
+                       </div>
+                       <strong>Din studentprofil</strong>
+                       <span>Skola, program och kontaktuppgifter samlas i ett konto.</span>
+                   </div>
+               </aside>
+           </div>
+       </section>
+   </main>
+{% endblock %}
