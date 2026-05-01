@@ -1,20 +1,23 @@
-#imports
-from flask import Flask, render_template, request, redirect, url_for, session 
+"""
+app.py
+This is the main entry point of the application.
+It initializes the Flask app and registers all blueprints.
+""" 
+
+from flask import Flask, render_template
 from auth import auth
 
 app = Flask(__name__)
-# Hemlig nyckel som behövs för att session ska fungera
-app.secret_key = "universe_secret"
+app.secret_key = "universe_secret"  # Secret key required for sessions to work
 
+app.register_blueprint(auth)  # Register authentication routes
 
-app.register_blueprint(auth)
-
-#routes to webbpages
 @app.route("/")
-def index(): 
+def index():
+    """
+    Renders the homepage.
+    """
     return render_template("index.html")
 
-#runner and debugger
 if __name__ == "__main__":
     app.run(debug=True)
-
