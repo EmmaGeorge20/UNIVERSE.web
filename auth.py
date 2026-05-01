@@ -45,3 +45,44 @@ def login():
 def logout():
     session.pop("user", None)  # Tar bort användaren från sessionen
     return redirect(url_for("index")) # Skickar tillbaka till startsidan
+
+# Route för registrering
+@auth.route("/register", methods=["GET", "POST"])
+def register():
+    error = None
+    if request.method == "POST":
+        first_name = request.form["first_name"]
+        last_name  = request.form["last_name"]
+        email      = request.form["email"]
+        school     = request.form["school"]
+        program    = request.form["program"]
+        phone      = request.form["phone"]
+        password   = request.form["password"]
+
+        if not valid_password(password):
+            error = "Lösenordet måste vara minst 8 tecken, innehålla minst en bokstav och en siffra."
+        else:
+            conn = get_connection()
+            if conn is None:
+                error = "Kunde inte ansluta till databasen."
+            else:
+                try:
+                    cur = conn.cursor()
+                    cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+                    if cur.fetchone():
+                        error = "Det finns redan ett konto med den e-postadressen."
+                    else:
+                        cur.execute("""
+                            INSERT INTO users (first_name, last_name, email, school, program, phone, password)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """, (first_name, last_name, email, school, program, phone, password))
+                        conn.commit()
+                        session["user"] = email
+                        return redirect(url_for("auth.login"))
+                    cur.close()
+                    conn.close()
+                except Exception as e:
+                    print("Fel vid registrering:", e)
+                    error = "Något gick fel, försök igen."
+
+    return render_template("register.html", error=error)

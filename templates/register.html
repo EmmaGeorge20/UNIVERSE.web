@@ -25,7 +25,7 @@
                    </div>
 
 
-                   <form class="register-form">
+                   <form class="register-form" method="POST" action="{{ url_for('auth.register') }}">
                        <div class="register-field-grid">
                            <label>
                                <span>Namn</span>
@@ -56,10 +56,9 @@
                                <input type="text" name="program" placeholder="Ditt program" required>
                            </label>
 
-
                            <label>
-                               <span>Telefonnummer</span>
-                               <input type="tel" name="phone" autocomplete="tel" placeholder="0701234567" required>
+                            <span>Telefonnummer</span>
+                            <input type="tel" name="phone" autocomplete="tel" placeholder="0701234567" required>
                            </label>
 
 
@@ -85,7 +84,7 @@
 
 
                        <div class="register-actions">
-                           <a href="{{ url_for('login') }}">Har du redan konto?</a>
+                           <a href="{{ url_for('auth.login') }}">Har du redan konto?</a>
                            <button class="register-submit" type="submit">Skapa konto</button>
                        </div>
                    </form>

@@ -6,6 +6,7 @@ app = Flask(__name__)
 # Hemlig nyckel som behövs för att session ska fungera
 app.secret_key = "universe_secret"
 
+
 app.register_blueprint(auth)
 
 #routes to webbpages
@@ -16,3 +17,4 @@ def index():
 #runner and debugger
 if __name__ == "__main__":
     app.run(debug=True)
+
