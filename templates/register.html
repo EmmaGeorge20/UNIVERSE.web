@@ -25,7 +25,7 @@
                    </div>
 
 
-                   <form class="register-form" method="POST" action="{{ url_for('register') }}">
+                   <form class="register-form" method="POST" action="{{ url_for('auth.register') }}">
                        <div class="register-field-grid">
                            <label>
                                <span>Namn</span>
@@ -44,7 +44,6 @@
                                <input type="email" name="email" autocomplete="email" placeholder="namn@gmail.com" required>
                            </label>
 
-
                            <label>
                                <span>Skola</span>
                                <input type="text" name="school" autocomplete="organization" placeholder="Din skola" required>
@@ -56,10 +55,9 @@
                                <input type="text" name="program" placeholder="Ditt program" required>
                            </label>
 
-
                            <label>
-                               <span>Telefonnummer</span>
-                               <input type="tel" name="phone" autocomplete="tel" placeholder="0701234567" required>
+                            <span>Telefonnummer</span>
+                            <input type="tel" name="phone" autocomplete="tel" placeholder="0701234567" required>
                            </label>
 
 
@@ -83,12 +81,9 @@
                            Lösenordet måste innehålla minst 8 tecken, minst en bokstav och minst en siffra.
                        </p>
 
-                       {% if error %}
-                       <p class="error">{{ error }}</p>
-                       {% endif %}
 
                        <div class="register-actions">
-                           <a href="{{ url_for('login') }}">Har du redan konto?</a>
+                           <a href="{{ url_for('auth.login') }}">Har du redan konto?</a>
                            <button class="register-submit" type="submit">Skapa konto</button>
                        </div>
                    </form>
