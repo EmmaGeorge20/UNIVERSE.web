@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Startup - UNI:VERSE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='startup.css') }}" />
+  </head>
+  <body>
+    <header class="startup-header">
+      <nav class="startup-nav">
+        <a class="brand" href="{{ url_for('startup') }}" aria-label="UNI:VERSE startup">
+          <img src="{{ url_for('static', filename='Universe.png') }}" alt="UNI:VERSE logo" />
+          <span>UNI:VERSE</span>
+        </a>
+        <div class="nav-links" aria-label="Startup navigation">
+          <a href="{{ url_for('index') }}">Hem</a>
+          <a href="#">Hjälp</a>
+          <a href="#">Marknad</a>
+          <a href="#">Nyheter</a>
+          <a href="#">Community</a>
+          <a href="#">Profil</a>
+        </div>
+        <a class="nav-cta" href="{{ url_for('auth.login') }}">Logga in</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="startup-hero">
+        <img
+          class="startup-hero-image"
+          src="{{ url_for('static', filename='universe_startuppage.png') }}"
+          alt="Tre studenter framför universitetet"
+        />
+        <div class="startup-content">
+          <span class="kicker">Studentplattform</span>
+          <h1>Välkommen till UNI:VERSE</h1>
+          <p>
+            Ett mjukt och tryggt studentuniversum där du hittar kursstöd,
+            möjligheter och gemenskap på ett ställe.
+          </p>
+          <div class="startup-actions">
+            <a class="btn" href="{{ url_for('auth.login') }}">Logga in</a>
+            <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Skapa konto</a>
+          </div>
+          <div class="startup-points">
+            <span>Verifierade hjälpare</span>
+            <span>Snabb bokning</span>
+            <span>Trygga sessioner</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
