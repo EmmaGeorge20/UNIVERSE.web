@@ -11,39 +11,16 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}?v=2" />
   </head>
   <body class="login-page">
-    <header class="login-simple-header">
-      <nav class="nav">
-        <div class="brand">
-          <span class="brand-mark">
-            <img src="{{ url_for('static', filename='Universe.png') }}" alt="UNI:VERSE logo" />
-          </span>
-          <span>UNI:VERSE</span>
-        </div>
-        <input id="nav-toggle" class="nav-checkbox" type="checkbox" />
-        <div class="nav-links">
-          <a href="index.html" data-i18n="nav.home">Hem</a>
-          <a href="help.html" data-i18n="nav.help">Hjälp</a>
-          <a href="marketplace.html" data-i18n="nav.marketplace">Marknad</a>
-          <a href="news.html" data-i18n="nav.news">Nyheter</a>
-          <a href="community.html" data-i18n="nav.community">Gemenskap</a>
-        </div>
-        <label for="nav-toggle" class="nav-toggle" aria-label="Öppna meny">
-          <span></span>
-          <span></span>
-        </label>
-      </nav>
-    </header>
-
     <main>
       <section id="login" class="section login-section login-form-section">
         <div class="login-panel login-student-panel">
           <div class="card login-card">
             <div class="login-card-header">
               <div>
-                <span class="soft-kicker">Ditt Univerisum</span>
+                <span class="soft-kicker">Ditt universum</span>
                 <h1>Logga in</h1>
                 <p>
                   Logga in och fortsätt till ditt personliga studentuniversum.
@@ -52,7 +29,7 @@
               <span class="login-status">Skyddad</span>
             </div>
 
-            <form class="role-form student-login-form" method="POST" action="/login">
+            <form class="role-form student-login-form" method="POST" action="{{ url_for('auth.login') }}">
               <label>
                 <span>Kontotyp</span>
                 <select name="role" required>
@@ -93,7 +70,10 @@
               {% endif %}
 
               <button class="btn" type="submit">Logga in</button>
-              <a href="{{ url_for('auth.register') }}">Skapa konto</a>
+              <div class="form-links">
+                <a href="{{ url_for('auth.register') }}">Skapa konto</a>
+                <a href="{{ url_for('index') }}">Fortsätt som gäst</a>
+              </div>
             </form>
           </div>
 
@@ -137,7 +117,6 @@
         </div>
 
         <div class="footer-meta">
-          <a href="mailto:hello@universe.se">hello@universe.se</a>
           <span>© 2026 UNI:VERSE</span>
           <span>Säkerhetsinformation</span>
         </div>

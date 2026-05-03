@@ -65,7 +65,7 @@
 .register-intro h1 {
  margin: 18px 0 12px;
  font-family: "Playfair Display", serif;
- font-size: clamp(30px, 4vw, 44px);
+ font-size: 40px;
  line-height: 1.08;
  font-weight: 600;
 }
@@ -159,7 +159,7 @@
 .register-form-heading h2 {
  margin: 10px 0;
  font-family: "Playfair Display", serif;
- font-size: clamp(34px, 5vw, 50px);
+ font-size: 46px;
  font-weight: 600;
 }
 
@@ -236,12 +236,24 @@
  line-height: 1.5;
 }
 
+.form-error {
+ margin: 0;
+ padding: 12px 14px;
+ border: 1px solid rgba(190, 49, 68, 0.24);
+ border-radius: 14px;
+ background: rgba(255, 239, 242, 0.86);
+ color: #8b1e31;
+ font-size: 14px;
+ font-weight: 700;
+ line-height: 1.5;
+}
+
 
 .register-actions {
  display: flex;
  align-items: center;
- justify-content: space-between;
- gap: 16px;
+ justify-content: flex-end;
+ gap: 14px;
  margin-top: 4px;
 }
 

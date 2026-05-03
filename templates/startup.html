@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Startup - UNI:VERSE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='startup.css') }}?v=16" />
+  </head>
+
+  <body>
+    <main>
+      <section class="startup-hero">
+        <img
+          class="startup-hero-image"
+          src="{{ url_for('static', filename='universe_startuppage.png') }}"
+          alt="Tre studenter framför universitetet"
+        />
+
+        <div class="startup-content">
+          <div class="startup-logo-row">
+            <img
+              src="{{ url_for('static', filename='universe_logo_mark_transparent.png') }}?v=2"
+              alt="UNI:VERSE logo"
+            />
+          </div>
+
+          <div class="startup-labels">
+            <span class="kicker">Studentplattform</span>
+          </div>
+
+          <h1>Välkommen till UNI:VERSE</h1>
+
+          <p>
+            Ett mjukt och tryggt studentuniversum där du hittar kursstöd,
+            möjligheter och gemenskap på ett ställe.
+          </p>
+
+          <div class="startup-actions">
+            <a class="btn" href="{{ url_for('auth.login') }}">Logga in</a>
+            <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Skapa konto</a>
+            <a class="btn btn-guest" href="{{ url_for('guest') }}">Kom in som gäst</a>
+          </div>
+
+          <div class="startup-points">
+            <span>Verifierade hjälpare</span>
+            <span>Snabb bokning</span>
+            <span>Trygga sessioner</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-main">
+        <div>
+          <div class="footer-brand">UNI:VERSE</div>
+          <p class="footer-note">
+            Ett universum till studenter!
+            <span>Byggd av studenter, till studenter.</span>
+          </p>
+        </div>
+
+        <div class="footer-meta">
+          <span>© 2026 UNI:VERSE</span>
+          <span>Säkerhetsinformation</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
