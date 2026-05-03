@@ -12,6 +12,7 @@
     />
     <link rel="stylesheet" href="{{ url_for('static', filename='startup.css') }}?v=16" />
   </head>
+
   <body>
     <main>
       <section class="startup-hero">
@@ -20,6 +21,7 @@
           src="{{ url_for('static', filename='universe_startuppage.png') }}"
           alt="Tre studenter framför universitetet"
         />
+
         <div class="startup-content">
           <div class="startup-logo-row">
             <img
@@ -27,19 +29,24 @@
               alt="UNI:VERSE logo"
             />
           </div>
+
           <div class="startup-labels">
             <span class="kicker">Studentplattform</span>
           </div>
+
           <h1>Välkommen till UNI:VERSE</h1>
+
           <p>
             Ett mjukt och tryggt studentuniversum där du hittar kursstöd,
             möjligheter och gemenskap på ett ställe.
           </p>
+
           <div class="startup-actions">
             <a class="btn" href="{{ url_for('auth.login') }}">Logga in</a>
             <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Skapa konto</a>
-            <a class="btn btn-guest" href="{{ url_for('index') }}">Kom in som gäst</a>
+            <a class="btn btn-guest" href="{{ url_for('guest') }}">Kom in som gäst</a>
           </div>
+
           <div class="startup-points">
             <span>Verifierade hjälpare</span>
             <span>Snabb bokning</span>

@@ -15,7 +15,7 @@ app.register_blueprint(auth)  # Register authentication routes
 @app.route("/")
 def index():
     """
-    Renders the homepage.
+    Redirects to the startup page.
     """
     return redirect(url_for("startup"))
 
@@ -25,6 +25,21 @@ def startup():
     Renders the startup page.
     """
     return render_template("startup.html")
+
+@app.route("/guest")
+def guest():
+    """
+    Allows users to continue as guest.
+    """
+    session["user"] = "guest"
+    return redirect(url_for("home"))
+
+@app.route("/home")
+def home():
+    """
+    Renders the homepage.
+    """
+    return render_template("index.html")
 
 @app.route("/booking")
 def booking():
