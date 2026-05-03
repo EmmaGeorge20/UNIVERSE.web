@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<!-- Google Fonts: Manrope och Playfair Display -->
+<!-- Google Fonts: Manrope and Playfair Display -->
   <title>Profil - UNI:VERSE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-   <!-- Profilsidans stylesheet -->
+   <!-- Profile page stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
 {% endblock %}
 
 {% block body %}
 <main class="profile-page">
- <!-- HERO-SEKTION: Bakgrundsbild, användarinfo och statistik -->
+ <!-- HERO SECTION: Background image, user info and statistics -->
   
   <section class="profile-hero">
- <!-- Bakgrundsbild med overlay -->
+ <!-- Background image with overlay -->
     <div class="profile-hero-bg">
       <img src="{{ url_for('static', filename='profile-bg.jpg') }}" alt="" aria-hidden="true">
       <div class="profile-hero-overlay"></div>
     </div>
- <!-- Användarens namn, "badge" och bokningsknapp -->
+ <!-- User's name, badge and booking button -->
     <div class="profile-hero-content">
       <div class="profile-identity">
         <div class="profile-avatar">
@@ -32,10 +32,10 @@
           <p class="profile-bio">{{ user.program }}-student vid {{ user.school }}</p>
         </div>
       </div>
-     <!-- Knapp för att boka en session -->
+     <!-- Button to book a session -->
       <a href="#" class="profile-book-btn">Boka session</a>
     </div>
-   <!--  betyg, sessioner och kurser -->
+   <!-- Rating, sessions and courses -->
     <div class="profile-stats">
       <div class="profile-stat">
         <strong>4.9/5</strong>
@@ -54,9 +54,9 @@
     </div>
   </section>
 
-  <!-- HUVUDINNEHÅLL: Två kolumner — info till vänster, sidebar till höger -->
+  <!-- MAIN CONTENT: Two columns — info on the left, sidebar on the right -->
   <div class="profile-body">
-    <!-- VÄNSTER: Om-sektion och kontaktuppgifter -->
+    <!-- LEFT: About section and contact details -->
     <div class="profile-main">
       <div class="profile-card">
         <h2>Om {{ user.first_name }}</h2>
@@ -69,7 +69,7 @@
           <span>Studieteknik</span>
         </div>
       </div>
-        <!-- Kontaktuppgifter hämtade från databasen -->
+        <!-- Contact details fetched from the database -->
       <div class="profile-card">
         <h2>Kontaktuppgifter</h2>
         <div class="profile-info-list">
@@ -94,9 +94,9 @@
     </div>
 
     
-    <!-- HÖGER: Nästa tider och senaste omdöme -->
+    <!-- RIGHT: Upcoming time slots and latest review -->
     <aside class="profile-sidebar">
-    <!-- Tillgängliga tider för bokning -->
+    <!-- Available time slots for booking -->
       <div class="profile-card">
         <h2>Nästa tider</h2>
         <div class="profile-times">
@@ -114,7 +114,7 @@
           </div>
         </div>
       </div>
-        <!-- Senaste omdöme från en student -->
+        <!-- Latest review from a student -->
       <div class="profile-card profile-review-card">
         <h2>Senaste omdöme</h2>
         <blockquote>
