@@ -3,36 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{url_for('static', filename = 'style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
     {% block head%}{% endblock %}
 </head>
 
-<body>
-    <header class="hero">
-        <nav>
-            <div id="brand">
-                <span class="brand-mark"><img src="{{url_for('static', filename = 'Universe.png')}}" alt="Universe logo"></span>
+<body class="{% block body_class %}{% endblock %}">
+    {% block header %}
+    <header class="welcome-header">
+        <nav class="nav" aria-label="Huvudnavigation">
+            <a class="brand" href="{{ url_for('index') }}" aria-label="UNI:VERSE startsida">
+                <span class="brand-mark">
+                    <img src="{{ url_for('static', filename='universe_logo_mark_transparent.png') }}?v=2" alt="UNI:VERSE logo">
+                </span>
                 <span>UNI:VERSE</span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Hem</a>
+                <a href="{{ url_for('search') }}">Sök</a>
+                <a href="{{ url_for('messages') }}">Meddelanden</a>
+                <a href="{{ url_for('booking') }}">Bokningar</a>
+                <a href="{{ url_for('profile') }}">Profil</a>
             </div>
-            <div id="nav-links">
-                <a href="#">Hem</a>
-                <a href="#">Boka handledning</a>
-                <a href="#">Om Oss</a>
-                <a href="#">Hjälp</a>
-            </div>
-            <div id="login">
+            <div class="nav-actions">
                 {% if session.get("user") %}
-                <a href="{{ url_for('auth.logout') }}">Logga ut</a>
+                <span class="nav-user">{{ session.get("user") }}</span>
+                <a class="nav-cta" href="{{ url_for('auth.logout') }}">Logga ut</a>
                 {% else %}
-                <a href="{{ url_for('auth.register') }}">Registrera</a>
-                <a href="{{ url_for('auth.login') }}">Logga in</a>
+                <a class="nav-link-quiet" href="{{ url_for('auth.register') }}">Registrera</a>
+                <a class="nav-cta" href="{{ url_for('auth.login') }}">Logga in</a>
                 {% endif %}
             </div>
         </nav>
     </header>
+    {% endblock %}
     {% block body%}{% endblock %}
-    <footer>
-        <p>© 2026 UNI:VERSE</p>
+    <footer class="footer">
+        <div class="footer-main">
+            <div>
+                <div class="footer-brand">UNI:VERSE</div>
+                <p class="footer-note">
+                    Ett universum till studenter!
+                    <span>Byggd av studenter, till studenter.</span>
+                </p>
+            </div>
+
+            <div class="footer-meta">
+                <a href="{{ url_for('help_page') }}">Hjälp</a>
+                <span>© 2026 UNI:VERSE</span>
+                <span>Säkerhetsinformation</span>
+            </div>
+        </div>
     </footer>
 </body>
 </html>

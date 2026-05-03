@@ -146,7 +146,7 @@
 .login-card-header h1 {
   margin-top: 10px;
   font-family: "Playfair Display", serif;
-  font-size: clamp(34px, 5vw, 50px);
+  font-size: 46px;
   font-weight: 600;
 }
 
@@ -238,6 +238,18 @@ textarea:focus {
   gap: 16px;
 }
 
+.form-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.form-links a {
+  color: #8e4a70;
+  font-weight: 800;
+}
+
 .login-student-card {
   padding: 24px 34px 34px;
   border-radius: 28px;
@@ -252,7 +264,7 @@ textarea:focus {
 
 .login-student-card h2 {
   font-family: "Playfair Display", serif;
-  font-size: clamp(30px, 4vw, 44px);
+  font-size: 40px;
   line-height: 1.08;
   font-weight: 600;
 }
