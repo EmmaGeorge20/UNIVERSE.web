@@ -17,7 +17,7 @@ def index():
     """
     Renders the homepage.
     """
-    return render_template("index.html")
+    return redirect(url_for("startup"))
 
 @app.route("/startup")
 def startup():
