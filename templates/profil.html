@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <title>Profil - UNI:VERSE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
+{% endblock %}
+
+{% block body %}
+<main class="profile-page">
+
+  <!-- HERO -->
+  <section class="profile-hero">
+    <div class="profile-hero-bg">
+      <img src="{{ url_for('static', filename='profile-bg.jpg') }}" alt="" aria-hidden="true">
+      <div class="profile-hero-overlay"></div>
+    </div>
+
+    <div class="profile-hero-content">
+      <div class="profile-identity">
+        <div class="profile-avatar">
+          <span>{{ user.first_name[0] }}</span>
+        </div>
+        <div class="profile-meta">
+          <span class="profile-badge">Verifierad hjälpare</span>
+          <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+          <p class="profile-bio">{{ user.program }}-student vid {{ user.school }}</p>
+        </div>
+      </div>
+      <a href="#" class="profile-book-btn">Boka session</a>
+    </div>
+
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <strong>4.9/5</strong>
+        <span>Betyg</span>
+      </div>
+      <div class="profile-stat-divider"></div>
+      <div class="profile-stat">
+        <strong>124</strong>
+        <span>Sessioner</span>
+      </div>
+      <div class="profile-stat-divider"></div>
+      <div class="profile-stat">
+        <strong>3</strong>
+        <span>Verifierade kurser</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <div class="profile-body">
+
+    <!-- LEFT: Om + kontaktinfo -->
+    <div class="profile-main">
+      <div class="profile-card">
+        <h2>Om {{ user.first_name }}</h2>
+        <p class="profile-about-text">
+          Jag förklarar gärna svåra steg lugnt och konkret. Fokus ligger på att förstå varför metoden fungerar, inte bara memorera lösningen.
+        </p>
+        <div class="profile-tags">
+          <span>Analys I</span>
+          <span>Tentaprep</span>
+          <span>Studieteknik</span>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <h2>Kontaktuppgifter</h2>
+        <div class="profile-info-list">
+          <div class="profile-info-row">
+            <span class="profile-info-label">E-post</span>
+            <span>{{ user.email }}</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="profile-info-label">Telefon</span>
+            <span>{{ user.phone }}</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="profile-info-label">Skola</span>
+            <span>{{ user.school }}</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="profile-info-label">Program</span>
+            <span>{{ user.program }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Nästa tider + Senaste omdöme -->
+    <aside class="profile-sidebar">
+      <div class="profile-card">
+        <h2>Nästa tider</h2>
+        <div class="profile-times">
+          <div class="profile-time-row">
+            <span>Idag</span>
+            <span class="profile-time">16:30</span>
+          </div>
+          <div class="profile-time-row">
+            <span>Imorgon</span>
+            <span class="profile-time">10:00</span>
+          </div>
+          <div class="profile-time-row">
+            <span>Fredag</span>
+            <span class="profile-time">13:15</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card profile-review-card">
+        <h2>Senaste omdöme</h2>
+        <blockquote>
+          "Väldigt tydlig genomgång. Jag förstod gränsvärden mycket bättre efter sessionen."
+        </blockquote>
+        <cite>— Sara, Analys I</cite>
+      </div>
+    </aside>
+
+  </div>
+</main>
+{% endblock %}
