@@ -6,9 +6,13 @@ Database credentials are loaded from the .env file.
 
 import psycopg2
 import os
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    load_dotenv = None
 
-load_dotenv()
+if load_dotenv:
+    load_dotenv()
 
 def get_connection():
     """
