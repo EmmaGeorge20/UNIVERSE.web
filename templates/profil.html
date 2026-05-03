@@ -1,24 +1,26 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<<<<<<< HEAD
+<!-- Google Fonts: Manrope och Playfair Display -->
   <title>Profil - UNI:VERSE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+   <!-- Profilsidans stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
 {% endblock %}
 
 {% block body %}
 <main class="profile-page">
-
-  <!-- HERO -->
+ <!-- HERO-SEKTION: Bakgrundsbild, användarinfo och statistik -->
+  
   <section class="profile-hero">
+ <!-- Bakgrundsbild med overlay -->
     <div class="profile-hero-bg">
       <img src="{{ url_for('static', filename='profile-bg.jpg') }}" alt="" aria-hidden="true">
       <div class="profile-hero-overlay"></div>
     </div>
-
+ <!-- Användarens namn, "badge" och bokningsknapp -->
     <div class="profile-hero-content">
       <div class="profile-identity">
         <div class="profile-avatar">
@@ -30,9 +32,10 @@
           <p class="profile-bio">{{ user.program }}-student vid {{ user.school }}</p>
         </div>
       </div>
+     <!-- Knapp för att boka en session -->
       <a href="#" class="profile-book-btn">Boka session</a>
     </div>
-
+   <!--  betyg, sessioner och kurser -->
     <div class="profile-stats">
       <div class="profile-stat">
         <strong>4.9/5</strong>
@@ -51,10 +54,9 @@
     </div>
   </section>
 
-  <!-- MAIN CONTENT -->
+  <!-- HUVUDINNEHÅLL: Två kolumner — info till vänster, sidebar till höger -->
   <div class="profile-body">
-
-    <!-- LEFT: Om + kontaktinfo -->
+    <!-- VÄNSTER: Om-sektion och kontaktuppgifter -->
     <div class="profile-main">
       <div class="profile-card">
         <h2>Om {{ user.first_name }}</h2>
@@ -67,7 +69,7 @@
           <span>Studieteknik</span>
         </div>
       </div>
-
+        <!-- Kontaktuppgifter hämtade från databasen -->
       <div class="profile-card">
         <h2>Kontaktuppgifter</h2>
         <div class="profile-info-list">
@@ -91,8 +93,10 @@
       </div>
     </div>
 
-    <!-- RIGHT: Nästa tider + Senaste omdöme -->
+    
+    <!-- HÖGER: Nästa tider och senaste omdöme -->
     <aside class="profile-sidebar">
+    <!-- Tillgängliga tider för bokning -->
       <div class="profile-card">
         <h2>Nästa tider</h2>
         <div class="profile-times">
@@ -110,7 +114,7 @@
           </div>
         </div>
       </div>
-
+        <!-- Senaste omdöme från en student -->
       <div class="profile-card profile-review-card">
         <h2>Senaste omdöme</h2>
         <blockquote>
@@ -123,16 +127,3 @@
   </div>
 </main>
 {% endblock %}
-=======
-    <title>Profil - UNI:VERSE</title>
-{% endblock %}
-
-{% block body %}
-    <main>
-        <section id="welcome">
-            <h2>Profil</h2>
-            <h3>Din profilsida är redo att byggas vidare.</h3>
-        </section>
-    </main>
-{% endblock %}
->>>>>>> 3a8f491be31f0eeedb9b784ca830e6d21946af0d
