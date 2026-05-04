@@ -11,9 +11,11 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}?v=2" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}?v=3" />
   </head>
   <body class="login-page">
+    <a class="auth-home-link" href="{{ url_for('home') }}">Tillbaka till hemsidan</a>
+
     <main>
       <section id="login" class="section login-section login-form-section">
         <div class="login-panel login-student-panel">
@@ -72,7 +74,7 @@
               <button class="btn" type="submit">Logga in</button>
               <div class="form-links">
                 <a href="{{ url_for('auth.register') }}">Skapa konto</a>
-                <a href="{{ url_for('index') }}">Fortsätt som gäst</a>
+                <a href="{{ url_for('guest') }}">Fortsätt som gäst</a>
               </div>
             </form>
           </div>

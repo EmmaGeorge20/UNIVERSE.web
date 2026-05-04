@@ -6,6 +6,7 @@ It initializes the Flask app and registers all blueprints.
 
 from flask import Flask, redirect, render_template, session, url_for
 from auth import auth
+from db import get_connection
 
 app = Flask(__name__)
 app.secret_key = "universe_secret"  # Secret key required for sessions to work
@@ -95,9 +96,47 @@ def profile():
     """
     Renders the profile page placeholder.
     """
-    if not session.get("user"):
+    email = session.get("user")
+    if not email:
         return redirect(url_for("auth.login"))
-    return render_template("profil.html")
+
+    user = {
+        "first_name": "Gäst",
+        "last_name": "",
+        "email": email,
+        "school": "UNI:VERSE",
+        "program": "Student",
+        "phone": "Ej angivet",
+    }
+
+    if email != "guest":
+        conn = get_connection()
+        if conn is not None:
+            try:
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    SELECT first_name, last_name, email, school, program, phone
+                    FROM users
+                    WHERE email = %s
+                    """,
+                    (email,),
+                )
+                row = cur.fetchone()
+                if row:
+                    user = {
+                        "first_name": row[0],
+                        "last_name": row[1],
+                        "email": row[2],
+                        "school": row[3],
+                        "program": row[4],
+                        "phone": row[5],
+                    }
+                cur.close()
+            finally:
+                conn.close()
+
+    return render_template("profil.html", user=user)
 
 if __name__ == "__main__":
     app.run(debug=True)

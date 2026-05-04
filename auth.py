@@ -52,7 +52,7 @@ def login():
                 if user: 
                     session["user"] = email
                     session["role"] = role
-                    return redirect(url_for("index"))
+                    return redirect(url_for("home"))
                 else:
                     error = "Fel epost, lösenord eller kontotyp"
 
@@ -66,7 +66,7 @@ def logout():
     """
     session.pop("user", None)
     session.pop("role", None)
-    return redirect(url_for("index"))
+    return redirect(url_for("startup"))
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
