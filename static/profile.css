@@ -1,6 +1,4 @@
-/* ===========================
-   PROFILE PAGE — UNI:VERSE
-   =========================== */
+
 
 .profile-page {
   min-height: 100vh;
@@ -8,7 +6,7 @@
   font-family: 'Manrope', sans-serif;
 }
 
-/* ── HERO ── */
+
 .profile-hero {
   position: relative;
   border-radius: 1.5rem;
@@ -122,7 +120,7 @@
   background: #333;
 }
 
-/* ── STATS ── */
+
 .profile-stats {
   position: relative;
   z-index: 1;
@@ -159,7 +157,7 @@
   background: #e5e5e5;
 }
 
-/* ── BODY ── */
+
 .profile-body {
   display: grid;
   grid-template-columns: 1fr 340px;
@@ -169,7 +167,7 @@
   margin: 0 auto;
 }
 
-/* ── CARDS ── */
+
 .profile-card {
   background: #fff;
   border-radius: 1.25rem;
@@ -239,7 +237,7 @@
   font-size: 0.8rem;
 }
 
-/* ── SIDEBAR ── */
+
 .profile-sidebar .profile-card {
   margin-bottom: 1.25rem;
 }
@@ -271,7 +269,7 @@
   color: #1a1a1a;
 }
 
-/* ── REVIEW ── */
+
 .profile-review-card blockquote {
   font-size: 0.9rem;
   color: #444;
@@ -289,7 +287,7 @@
   font-weight: 500;
 }
 
-/* ── RESPONSIVE ── */
+
 @media (max-width: 768px) {
   .profile-hero {
     margin: 0.75rem;

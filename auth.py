@@ -4,7 +4,7 @@ This file handles all authentication routes including login, logout and registra
 It uses Flask Blueprint to separate authentication logic from the main application.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, app, render_template, request, redirect, url_for, session
 from db import get_connection
 
 auth = Blueprint("auth", __name__)
@@ -40,21 +40,18 @@ def login():
             error = "Lösenordet måste vara minst 8 tecken, innehålla minst en bokstav och en siffra"
         else:
             conn = get_connection()
-            if conn is None:
-                error = "Kunde inte ansluta till databasen."
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
+            user = cur.fetchone()
+            cur.close()
+            conn.close()
+            
+            if user: 
+                session["user"] = email
+                session["role"] = role
+                return redirect(url_for("index"))
             else:
-                cur = conn.cursor()
-                cur.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
-                user = cur.fetchone()
-                cur.close()
-                conn.close()
-                
-                if user: 
-                    session["user"] = email
-                    session["role"] = role
-                    return redirect(url_for("index"))
-                else:
-                    error = "Fel epost, lösenord eller kontotyp"
+                error = "Fel epost, lösenord eller kontotyp"
 
     return render_template("login.html", error=error)
 
@@ -65,7 +62,6 @@ def logout():
     Redirects to the homepage after logout.
     """
     session.pop("user", None)
-    session.pop("role", None)
     return redirect(url_for("index"))
 
 @auth.route("/register", methods=["GET", "POST"])
