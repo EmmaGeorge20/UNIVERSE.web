@@ -11,14 +11,14 @@
     {% block header %}
     <header class="welcome-header">
         <nav class="nav" aria-label="Huvudnavigation">
-            <a class="brand" href="{{ url_for('index') }}" aria-label="UNI:VERSE startsida">
+            <a class="brand" href="{{ url_for('home') }}" aria-label="UNI:VERSE hemsida">
                 <span class="brand-mark">
                     <img src="{{ url_for('static', filename='universe_logo_mark_transparent.png') }}?v=2" alt="UNI:VERSE logo">
                 </span>
                 <span>UNI:VERSE</span>
             </a>
             <div class="nav-links">
-                <a href="{{ url_for('index') }}">Hem</a>
+                <a href="{{ url_for('home') }}">Hem</a>
                 <a href="{{ url_for('search') }}">Sök</a>
                 <a href="{{ url_for('messages') }}">Meddelanden</a>
                 <a href="{{ url_for('booking') }}">Bokningar</a>

@@ -1,3 +1,29 @@
+.auth-home-link {
+ position: fixed;
+ top: 24px;
+ left: 7vw;
+ z-index: 20;
+ display: inline-flex;
+ align-items: center;
+ min-height: 42px;
+ padding: 0 16px;
+ border: 1px solid rgba(29, 28, 26, 0.1);
+ border-radius: 999px;
+ background: rgba(255, 255, 255, 0.86);
+ color: #1f1b1a;
+ font-size: 14px;
+ font-weight: 900;
+ text-decoration: none;
+ box-shadow: 0 14px 34px rgba(39, 33, 26, 0.08);
+ backdrop-filter: blur(14px);
+ transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.auth-home-link:hover {
+ background: #fff;
+ transform: translateY(-1px);
+}
+
 .register-page {
  padding: 84px 7vw 110px;
  background: transparent;
