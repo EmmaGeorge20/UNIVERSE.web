@@ -6,11 +6,14 @@ It initializes the Flask app and registers all blueprints.
 
 from flask import Flask, redirect, render_template, session, url_for
 from auth import auth
+from user_profile import profile_bp
 
 app = Flask(__name__)
 app.secret_key = "universe_secret"  # Secret key required for sessions to work
 
 app.register_blueprint(auth)  # Register authentication routes
+app.register_blueprint(profile_bp)
+
 
 @app.route("/")
 def index():
@@ -89,15 +92,6 @@ def community():
     Renders the community page placeholder.
     """
     return render_template("page.html", title="Community")
-
-@app.route("/profile")
-def profile():
-    """
-    Renders the profile page placeholder.
-    """
-    if not session.get("user"):
-        return redirect(url_for("auth.login"))
-    return render_template("profil.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
