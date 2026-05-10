@@ -12,13 +12,57 @@
 
 {% block body %}
    <main class="chat-page">
-      <div class = "message-box">
-        <h2>{{room}}</h2>
-        <div class="messages" id="chat"></div>
-        <div class="inputs">
-            <input type="text" placeholder="Meddelande..." name= message id = message>
-            <button type="button" name="send" id="send-btn" onclick="sendMessage()">Skicka</button>
-        </div>
-      </div>
+    <aside class="chat-sidebar">
+        <h1>Chattar</h1>
+
+            {% for chat in chats %}
+                <a href="{{ url_for('chat.chat_page', receiver_id=chat[0]) }}">
+                    <h3>{{ chat[1] }}</h3>
+                    <p>{{ chat[2] }}</p>
+                </a>
+            {% endfor %}
+    </aside>
+    <section>
+        {% if no_chats %}
+
+            <div class="empty-chat">
+                <h2>Det finns inga tidigare meddelanden.</h2>
+                <p>Hitta en handledare och börja chatta!</p>
+            </div>
+        {% else %}
+            <div class="message-box">
+                <h2>{{room}}</h2>
+                <div class="messages" id="chat">
+                    {% for message in messages %}
+
+                        {% if message[0] == session["user_id"] %}
+                            <div class="message me">
+                                {{ message[2] }}
+                            </div>
+                        {% else %}
+                            <div class="message other">
+                                {{ message[2] }}
+                            </div>
+                        {% endif %}
+
+                    {% endfor %}
+                </div>
+                <div class="inputs">
+                    <input type="text" placeholder="Meddelande..." name= "message" id = "message">
+                    <button type="button" name="send" id="send-btn" onclick="sendMessage()">Skicka</button>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+    
+   {% if not no_chats %}
+        <script>
+            const CURRENT_USER_ID = "{{ session['user_id'] }}";
+            const RECEIVER_ID = "{{ receiver_id }}";
+        </script>
+
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    {% endif %}
    </main>
 {% endblock %}

@@ -5,14 +5,105 @@ from extensions import socketio
 
 chat = Blueprint("chat", __name__)
 
-@chat.route("/chat") # rout for chat
-def chat_page():
+@chat.route("/chat/<int:receiver_id>") # rout for chat
+def chat_page(receiver_id):
     ''' Opens chat.html if user is logged in. Otherwise it redirects the user to login'''
+
     if "user_id" not in session:
-        return redirect(url_for("auth.login")) #If user is not logged in then they are moved to log in page
+        return redirect(url_for("auth.login"))
 
-    return render_template("chat.html", receiver_id = receiver_id)
+    user_id = session["user_id"]
 
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT DISTINCT ON (u.id)
+            u.id,
+            u.username,
+            m.message,
+            m.sent_at
+
+        FROM messages m
+
+        JOIN users u
+            ON (
+                (u.id = m.sender_id AND m.receiver_id = %s)
+                OR
+                (u.id = m.receiver_id AND m.sender_id = %s)
+            )
+
+        WHERE u.id != %s
+
+        ORDER BY u.id, m.sent_at DESC
+    """, (user_id, user_id, user_id))
+
+    chats = cur.fetchall()
+    
+    cur.execute("""
+        SELECT sender_id, receiver_id, message, sent_at
+        FROM messages
+        WHERE
+            (sender_id = %s AND receiver_id = %s)
+            OR
+            (sender_id = %s AND receiver_id = %s)
+        ORDER BY sent_at ASC
+    """, (user_id, receiver_id, receiver_id, user_id))
+
+    messages = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    room = get_room_name(user_id, receiver_id)
+
+    return render_template(
+        "chat.html",
+        receiver_id=receiver_id,
+        room=room,
+        chats=chats,
+        messages=messages
+    )
+
+@chat.route("/chats")
+def chats_page():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    user_id = session["user_id"]
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            CASE
+                WHEN sender_id = %s THEN receiver_id
+                ELSE sender_id
+            END AS other_user_id
+        FROM messages
+        WHERE sender_id = %s OR receiver_id = %s
+        ORDER BY sent_at DESC
+        LIMIT 1
+    """, (user_id, user_id, user_id))
+
+    latest_chat = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if latest_chat:
+        return redirect(url_for("chat.chat_page", receiver_id=latest_chat[0]))
+    
+    return render_template(
+    "chat.html",
+    chats=[],
+    receiver_id=None,
+    room=None,
+    no_chats=True
+)
+
+    return render_template("chat.html", chats=[], receiver_id=None, room=None)
 @socketio.on("join_chat") 
 def join_chat(data):
     '''Puts the user in a chatroom'''
@@ -39,8 +130,8 @@ def handle_message(data):
     if message == "":
         return
  
- # ska sättas i db men är utloggad 
-    '''conn = get_connection() 
+
+    conn = get_connection() 
     cur = conn.cursor()
 
     cur.execute("""
@@ -63,7 +154,7 @@ def handle_message(data):
         "receiver_id": receiver_id,
         "message": message,
         "sent_at": str(saved_message[1])
-    }, to=room)'''
+    }, to=room)
 
 
 def get_room_name(user1_id, user2_id):

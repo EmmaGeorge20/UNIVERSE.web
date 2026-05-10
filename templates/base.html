@@ -19,6 +19,7 @@
                 <a href="#">Boka handledning</a>
                 <a href="#">Om Oss</a>
                 <a href="#">Hjälp</a>
+                <a href="{{ url_for('chat.chats_page') }}">Meddelanden</a>
             </div>
             <div id="login">
                 {% if session.get("user") %}
