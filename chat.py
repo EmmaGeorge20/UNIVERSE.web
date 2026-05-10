@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, session, url_for
 from db import get_connection
 from flask_socketio import emit, send, join_room
+from extensions import socketio
 
 chat = Blueprint("chat", __name__)
 
@@ -10,7 +11,7 @@ def chat_page():
     if "user_id" not in session:
         return redirect(url_for("auth.login")) #If user is not logged in then they are moved to log in page
 
-    return render_template("chat.html")
+    return render_template("chat.html", receiver_id = receiver_id)
 
 @socketio.on("join_chat") 
 def join_chat(data):
