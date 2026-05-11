@@ -39,7 +39,7 @@ def chat_page(receiver_id):
     """, (user_id, user_id, user_id))
 
     chats = cur.fetchall()
-    
+
     cur.execute("""
         SELECT sender_id, receiver_id, message, sent_at
         FROM messages
@@ -103,7 +103,7 @@ def chats_page():
     no_chats=True
 )
 
-    return render_template("chat.html", chats=[], receiver_id=None, room=None)
+   
 @socketio.on("join_chat") 
 def join_chat(data):
     '''Puts the user in a chatroom'''
