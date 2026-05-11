@@ -7,12 +7,12 @@ It initializes the Flask app and registers all blueprints.
 from flask import Flask, render_template
 from auth import auth
 from chat import chat
-from extensions import SocketIO
+from extensions import socketio
 
 app = Flask(__name__)
 app.secret_key = "universe_secret"  # Secret key required for sessions to work
 
-socketio = SocketIO(app)
+socketio.init_app(app) #Connects Flask with socket server
 
 app.register_blueprint(auth)  # Register authentication routes
 app.register_blueprint(chat)  # Chat routes

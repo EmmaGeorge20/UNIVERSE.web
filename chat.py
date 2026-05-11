@@ -1,18 +1,30 @@
+'''
+Handels all functions relates to the chat 
+'''
+
 from flask import Blueprint, render_template, redirect, session, url_for
 from db import get_connection
-from flask_socketio import emit, send, join_room
+from flask_socketio import emit, join_room
 from extensions import socketio
 
 chat = Blueprint("chat", __name__)
 
 @chat.route("/chat/<int:receiver_id>") # rout for chat
 def chat_page(receiver_id):
-    ''' Opens chat.html if user is logged in. Otherwise it redirects the user to login'''
+    ''' 
+    Opens a specific chat with the logges in user and the choosen reciver 
 
-    if "user_id" not in session:
+    Args: 
+        receiver_id - takes receiver id from url to know witch receiver it is 
+    
+    Return: 
+        render_template - Sends information to the choosen tamplate
+    '''
+
+    if "user_id" not in session: # if user is not logged in then it redirects to login page 
         return redirect(url_for("auth.login"))
 
-    user_id = session["user_id"]
+    user_id = session["user_id"] # Takes the userer that is logged in and saves it as user_id
 
     conn = get_connection()
     cur = conn.cursor()
@@ -55,14 +67,15 @@ def chat_page(receiver_id):
     cur.close()
     conn.close()
 
-    room = get_room_name(user_id, receiver_id)
+    room = get_room_name(user_id, receiver_id) # Uses the get_room_name funktion where a chatroom is named
 
-    return render_template(
+    return render_template( # sends information to chat.html
         "chat.html",
         receiver_id=receiver_id,
         room=room,
         chats=chats,
-        messages=messages
+        messages=messages, 
+        no_chats=False
     )
 
 @chat.route("/chats")
@@ -104,7 +117,7 @@ def chats_page():
 )
 
    
-@socketio.on("join_chat") 
+@socketio.on("join_chat")  # starts when frontend (js) sends socketio.emit("join_chat")
 def join_chat(data):
     '''Puts the user in a chatroom'''
     user_id = session.get("user_id")
@@ -112,25 +125,31 @@ def join_chat(data):
     if not user_id:
         return
 
-    receiver_id = data["receiver_id"]
+    receiver_id = data.get["receiver_id"]
     room = get_room_name(user_id, receiver_id)
 
-    join_room(room)
+    join_room(room) # Puts the user in correct chat 
 
-@socketio.on("send_message")
+@socketio.on("send_message") # Starts when frontend (js) sends a new message
 def handle_message(data):
+    '''
+    Handles how the message is presented and that both paties in chat gets the message
+
+    Args: 
+        data - sent from JavaSript with reciver and message 
+    '''
     sender_id = session.get("user_id")
 
     if not sender_id:
         return
 
-    receiver_id = data["receiver_id"]
-    message = data["message"].strip()
+    receiver_id = data.get["receiver_id"]
+    message = data.get("message", "").strip()
 
     if message == "":
         return
  
-
+# save message
     conn = get_connection() 
     cur = conn.cursor()
 
@@ -148,7 +167,7 @@ def handle_message(data):
 
     room = get_room_name(sender_id, receiver_id)
 
-    emit("receive_message", {
+    emit("receive_message", { #Sends to both paties the message
         "id": saved_message[0],
         "sender_id": sender_id,
         "receiver_id": receiver_id,

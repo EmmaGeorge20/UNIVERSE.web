@@ -3,8 +3,6 @@ var socketio = io();
 const chat = document.getElementById("chat");
 const messageInput = document.getElementById("message");
 
-const CURRENT_USER_ID = "{{ session['user_id'] }}";
-const RECEIVER_ID = "{{ receiver_id }}";
 
 socketio.emit("join_chat", {
     receiver_id: RECEIVER_ID
@@ -42,5 +40,7 @@ function addMessage(data) {
     msg.textContent = data.message;
 
     chat.appendChild(msg);
+
+    chat.scrollTop = chat.scrollHeight;
 }
 

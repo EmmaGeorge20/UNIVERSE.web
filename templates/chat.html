@@ -16,7 +16,7 @@
         <h1>Chattar</h1>
 
             {% for chat in chats %}
-                <a href="{{ url_for('chat.chat_page', receiver_id=chat[0]) }}">
+                <a href="{{ url_for('chat.chat_page', receiver_id=chat[0]) }}" class="chat-preview">
                     <h3>{{ chat[1] }}</h3>
                     <p>{{ chat[2] }}</p>
                 </a>
@@ -48,7 +48,7 @@
                     {% endfor %}
                 </div>
                 <div class="inputs">
-                    <input type="text" placeholder="Meddelande..." name= "message" id = "message">
+                    <input type="text" placeholder="Meddelande..." name="message" id ="message">
                     <button type="button" name="send" id="send-btn" onclick="sendMessage()">Skicka</button>
                 </div>
             </div>
