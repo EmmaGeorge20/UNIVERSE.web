@@ -26,57 +26,51 @@ def chat_page(receiver_id):
 
     user_id = session["user_id"] # Takes the userer that is logged in and saves it as user_id
 
+    chat_id = get_or_create_chat(user_id, receiver_id)
+
+
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT DISTINCT ON (u.id)
+        SELECT
             u.id,
-            u.username,
-            m.message,
-            m.sent_at
-
-        FROM messages m
-
+            u.username
+        FROM chats c
         JOIN users u
-            ON (
-                (u.id = m.sender_id AND m.receiver_id = %s)
-                OR
-                (u.id = m.receiver_id AND m.sender_id = %s)
-            )
-
-        WHERE u.id != %s
-
-        ORDER BY u.id, m.sent_at DESC
+            ON u.id = CASE
+                WHEN c.user1_id = %s THEN c.user2_id
+                ELSE c.user1_id
+            END
+        WHERE c.user1_id = %s OR c.user2_id = %s
     """, (user_id, user_id, user_id))
 
     chats = cur.fetchall()
 
     cur.execute("""
-        SELECT sender_id, receiver_id, message, sent_at
+        SELECT sender_id, message, sent_at
         FROM messages
-        WHERE
-            (sender_id = %s AND receiver_id = %s)
-            OR
-            (sender_id = %s AND receiver_id = %s)
+        WHERE chat_id = %s
         ORDER BY sent_at ASC
-    """, (user_id, receiver_id, receiver_id, user_id))
+    """, (chat_id,))
 
     messages = cur.fetchall()
 
     cur.close()
     conn.close()
 
-    room = get_room_name(user_id, receiver_id) # Uses the get_room_name funktion where a chatroom is named
+    room = get_room_name(user_id, receiver_id)
 
-    return render_template( # sends information to chat.html
+    return render_template(
         "chat.html",
         receiver_id=receiver_id,
+        chat_id=chat_id,
         room=room,
         chats=chats,
-        messages=messages, 
+        messages=messages,
         no_chats=False
     )
+
 
 @chat.route("/chats")
 def chats_page():
@@ -91,12 +85,12 @@ def chats_page():
     cur.execute("""
         SELECT
             CASE
-                WHEN sender_id = %s THEN receiver_id
-                ELSE sender_id
+                WHEN user1_id = %s THEN user2_id
+                ELSE user1_id
             END AS other_user_id
-        FROM messages
-        WHERE sender_id = %s OR receiver_id = %s
-        ORDER BY sent_at DESC
+        FROM chats
+        WHERE user1_id = %s OR user2_id = %s
+        ORDER BY id DESC
         LIMIT 1
     """, (user_id, user_id, user_id))
 
@@ -109,18 +103,19 @@ def chats_page():
         return redirect(url_for("chat.chat_page", receiver_id=latest_chat[0]))
     
     return render_template(
-    "chat.html",
-    chats=[],
-    receiver_id=None,
-    room=None,
-    no_chats=True
-)
-
+        "chat.html",
+        chats=[],
+        receiver_id=None,
+        chat_id=None,
+        room=None,
+        messages=[],
+        no_chats=True
+    )
    
 @socketio.on("join_chat")  # starts when frontend (js) sends socketio.emit("join_chat")
 def join_chat(data):
     '''Puts the user in a chatroom'''
-    user_id = session.get("user_id")
+    user_id = session.get("user")
 
     if not user_id:
         return
@@ -132,32 +127,26 @@ def join_chat(data):
 
 @socketio.on("send_message") # Starts when frontend (js) sends a new message
 def handle_message(data):
-    '''
-    Handles how the message is presented and that both paties in chat gets the message
-
-    Args: 
-        data - sent from JavaSript with reciver and message 
-    '''
-    sender_id = session.get("user_id")
-
-    if not sender_id:
+    if "user_id" not in session:
         return
 
-    receiver_id = data.get["receiver_id"]
+    sender_id = session["user_id"]
+    receiver_id = data.get("receiver_id")
     message = data.get("message", "").strip()
 
-    if message == "":
+    if not receiver_id or message == "":
         return
- 
-# save message
-    conn = get_connection() 
+
+    chat_id = get_or_create_chat(sender_id, receiver_id)
+
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO messages (sender_id, receiver_id, message)
+        INSERT INTO messages (chat_id, sender_id, message)
         VALUES (%s, %s, %s)
         RETURNING id, sent_at
-    """, (sender_id, receiver_id, message))
+    """, (chat_id, sender_id, message))
 
     saved_message = cur.fetchone()
     conn.commit()
@@ -167,8 +156,9 @@ def handle_message(data):
 
     room = get_room_name(sender_id, receiver_id)
 
-    emit("receive_message", { #Sends to both paties the message
+    emit("receive_message", {
         "id": saved_message[0],
+        "chat_id": chat_id,
         "sender_id": sender_id,
         "receiver_id": receiver_id,
         "message": message,
@@ -180,3 +170,35 @@ def get_room_name(user1_id, user2_id):
     '''Creats a room name with user ids so that the chat can be saved and users can see old messages'''
     ids = sorted([int(user1_id), int(user2_id)])
     return f"chat_{ids[0]}_{ids[1]}"
+
+def get_or_create_chat(user_id, receiver_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id
+        FROM chats
+        WHERE
+            (user1_id = %s AND user2_id = %s)
+            OR
+            (user1_id = %s AND user2_id = %s)
+    """, (user_id, receiver_id, receiver_id, user_id))
+
+    existing_chat = cur.fetchone()
+
+    if existing_chat:
+        chat_id = existing_chat[0]
+    else:
+        cur.execute("""
+            INSERT INTO chats (user1_id, user2_id)
+            VALUES (%s, %s)
+            RETURNING id
+        """, (user_id, receiver_id))
+
+        chat_id = cur.fetchone()[0]
+        conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return chat_id

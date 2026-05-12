@@ -41,13 +41,14 @@ def login():
         else:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
+            cur.execute("""SELECT id, email FROM users WHERE email = %s AND password = %s""", (email, password))
             user = cur.fetchone()
             cur.close()
             conn.close()
             
             if user: 
-                session["user"] = email
+                session["user_id"] = user[0]
+                session["user"] = user[1]
                 session["role"] = role
                 return redirect(url_for("index"))
             else:
