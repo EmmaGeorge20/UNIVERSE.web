@@ -17,8 +17,8 @@
 
             {% for chat in chats %}
                 <a href="{{ url_for('chat.chat_page', receiver_id=chat[0]) }}" class="chat-preview">
-                    <h3>{{ chat[1] }}</h3>
-                    <p>{{ chat[2] }}</p>
+                   <h3>{{ chat[1] }} {{ chat[2] }}</h3>
+                   <p>{{ chat[3] }}</p>
                 </a>
             {% endfor %}
     </aside>
@@ -41,7 +41,7 @@
                             </div>
                         {% else %}
                             <div class="message other">
-                                {{ message[2] }}
+                                {{ message[1] }}
                             </div>
                         {% endif %}
 
