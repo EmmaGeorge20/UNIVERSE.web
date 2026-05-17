@@ -6,12 +6,14 @@
    <link rel="preconnect" href="https://fonts.googleapis.com">
    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}?v=2">
+   <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}?v=3">
 {% endblock %}
 
 {% block header %}{% endblock %}
 
 {% block body %}
+   <a class="auth-home-link" href="{{ url_for('home') }}">Tillbaka till hemsidan</a>
+
    <main class="register-page">
        <section id="register" class="register-section">
            <div class="register-shell">
@@ -89,7 +91,7 @@
 
                        <div class="register-actions">
                            <a href="{{ url_for('auth.login') }}">Har du redan konto?</a>
-                           <a href="{{ url_for('index') }}">Fortsätt som gäst</a>
+                           <a href="{{ url_for('guest') }}">Fortsätt som gäst</a>
                            <button class="register-submit" type="submit">Skapa konto</button>
                        </div>
                    </form>

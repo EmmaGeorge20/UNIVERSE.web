@@ -4,7 +4,7 @@ This file handles all authentication routes including login, logout and registra
 It uses Flask Blueprint to separate authentication logic from the main application.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, app, render_template, request, redirect, url_for, session
 from db import get_connection
 
 auth = Blueprint("auth", __name__)
@@ -66,7 +66,7 @@ def logout():
     """
     session.pop("user", None)
     session.pop("role", None)
-    return redirect(url_for("home"))
+    return redirect(url_for("startup"))
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
