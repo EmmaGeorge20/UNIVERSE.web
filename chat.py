@@ -32,19 +32,7 @@ def chat_page(receiver_id):
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT
-            u.id,
-            u.username
-        FROM chats c
-        JOIN users u
-            ON u.id = CASE
-                WHEN c.user1_id = %s THEN c.user2_id
-                ELSE c.user1_id
-            END
-        WHERE c.user1_id = %s OR c.user2_id = %s
-    """, (user_id, user_id, user_id))
-
+    cur.execute("select * from  get_chat_sidebar(%s)", (user_id,))
     chats = cur.fetchall()
 
     cur.execute("""
@@ -82,24 +70,14 @@ def chats_page():
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT
-            CASE
-                WHEN user1_id = %s THEN user2_id
-                ELSE user1_id
-            END AS other_user_id
-        FROM chats
-        WHERE user1_id = %s OR user2_id = %s
-        ORDER BY id DESC
-        LIMIT 1
-    """, (user_id, user_id, user_id))
-
+    cur.execute("SELECT * from get_latest_chat(%s)", (user_id,))
     latest_chat = cur.fetchone()
+
 
     cur.close()
     conn.close()
 
-    if latest_chat:
+    if latest_chat and latest_chat[0] is not None:
         return redirect(url_for("chat.chat_page", receiver_id=latest_chat[0]))
     
     return render_template(
@@ -115,12 +93,12 @@ def chats_page():
 @socketio.on("join_chat")  # starts when frontend (js) sends socketio.emit("join_chat")
 def join_chat(data):
     '''Puts the user in a chatroom'''
-    user_id = session.get("user")
+    user_id = session.get("user_id")
 
     if not user_id:
         return
 
-    receiver_id = data.get["receiver_id"]
+    receiver_id = data.get("receiver_id")
     room = get_room_name(user_id, receiver_id)
 
     join_room(room) # Puts the user in correct chat 
