@@ -8,13 +8,18 @@ from flask import Flask, redirect, render_template, session, url_for
 from auth import auth
 from user_profile import profile_bp
 from db import get_connection
+from chat import chat
+from extensions import socketio
 
 app = Flask(__name__)
 app.secret_key = "universe_secret"  # Secret key required for sessions to work
 
+socketio.init_app(app) #Connects Flask with socket server
+
 app.register_blueprint(auth)  # Register authentication routes
 app.register_blueprint(profile_bp)
 
+app.register_blueprint(chat)  # Chat routes
 
 @app.route("/")
 def index():
@@ -142,4 +147,4 @@ def profile():
     return render_template("profil.html", user=user)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
