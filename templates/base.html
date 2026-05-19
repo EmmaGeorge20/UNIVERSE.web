@@ -21,9 +21,9 @@
                 <a href="{{ url_for('home') }}">Hem</a>
                 <a href="{{ url_for('search') }}">Sök</a>
                 <a href="{{ url_for('chat.chats_page') }}">Meddelanden</a>
-                <a href="{{ url_for('booking') }}">Bokningar</a>
-                <a href="{{ url_for('profile.profile_page') }}">Profil</a>
-            </div>
+                 <a href="{{ url_for('booking') }}">Bokningar</a>
+                  <a href="{{ url_for('profile.profile_page') }}">Profil</a>
+</div>
             <div class="nav-actions">
                 {% if session.get("user") %}
                 <span class="nav-user">{{ session.get("user") }}</span>
