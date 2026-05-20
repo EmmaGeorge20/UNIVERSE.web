@@ -4,8 +4,16 @@ Handels all functions relates to the chat
 
 from flask import Blueprint, render_template, redirect, session, url_for
 from db import get_connection
-from flask_socketio import emit, join_room
 from extensions import socketio
+
+try:
+    from flask_socketio import emit, join_room
+except ModuleNotFoundError:
+    def emit(*args, **kwargs):
+        return None
+
+    def join_room(*args, **kwargs):
+        return None
 
 chat = Blueprint("chat", __name__)
 
