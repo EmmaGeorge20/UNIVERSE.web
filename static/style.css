@@ -199,6 +199,7 @@ footer{
   align-items: center;
   gap: 10px;
   flex: 0 0 auto;
+  padding-right: 28px;
 }
 
 .nav-user {
@@ -847,6 +848,7 @@ img {
   transform: translateY(-1px);
 }
 
+<<<<<<< Updated upstream
 .hero-image-wrap {
   position: relative;
   min-width: 0;
@@ -2055,3 +2057,96 @@ select:focus,
   font-style: normal;
   font-weight: 500;
 }
+=======
+/* Profile dropdown */
+.nav-profile {
+    position: relative;
+}
+
+.nav-avatar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.nav-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-pink), var(--brand-yellow));
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.18s;
+}
+
+.nav-avatar:hover {
+    transform: scale(1.05);
+}
+
+.nav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 220px;
+    background: var(--surface);
+    border: 1px solid var(--stroke);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    z-index: 100;
+}
+
+.nav-dropdown.open {
+    display: block;
+}
+
+.nav-dropdown-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--stroke);
+}
+
+.nav-dropdown-email {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.nav-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    transition: background 0.15s;
+}
+
+.nav-dropdown-item:hover {
+    background: var(--accent-soft);
+}
+
+.nav-dropdown-divider {
+    height: 1px;
+    background: var(--stroke);
+    margin: 4px 0;
+}
+
+.nav-dropdown-logout {
+    color: #e53935;
+}
+
+.nav-dropdown-logout:hover {
+    background: #fff0f0;
+}
+>>>>>>> Stashed changes
