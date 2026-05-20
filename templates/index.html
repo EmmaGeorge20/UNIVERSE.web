@@ -38,15 +38,18 @@
       </div>
     </section>
 
-    <section class="home-section intro-section" aria-labelledby="intro-title">
+    <section class="home-section intro-section tutor-cta-section" aria-labelledby="intro-title">
       <div>
-        <span class="section-kicker">Hem</span>
-        <h2 id="intro-title">Ett enklare studentliv börjar här.</h2>
+        <span class="section-kicker">Handledare</span>
+        <h2 id="intro-title">Hitta handledare som passar din kurs.</h2>
       </div>
-      <p>
-        UNI:VERSE samlar sökning, meddelanden och bokningar på ett ställe.
-        Sidan är byggd för att vara lätt att förstå och enkel att använda.
-      </p>
+      <div class="tutor-cta-copy">
+        <p>
+          Sök efter handledare, jämför stöd och gå vidare när du hittar någon
+          som passar ditt ämne och din studietakt.
+        </p>
+        <a class="home-cta-link" href="{{ url_for('search') }}">Hitta handledare</a>
+      </div>
     </section>
 
     <section class="home-section feature-grid" aria-label="UNI:VERSE funktioner">
@@ -70,7 +73,7 @@
     <section class="home-section split-section" aria-labelledby="how-title">
       <div class="split-copy">
         <span class="section-kicker">Så funkar det</span>
-        <h2 id="how-title">Från sökning till bokning.</h2>
+        <h2 id="how-title">Från fråga till lösning på några steg.</h2>
         <p>
           Börja med kursen du behöver hjälp i, kontakta en handledare och boka
           tiden när ni är överens. Flödet ska kännas tydligt redan första gången.
