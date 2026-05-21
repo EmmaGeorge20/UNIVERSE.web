@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Sök Handledare – UNI:VERSE</title>
+{% endblock %}
+
+{% block body %}
+<main class="search-page">
+  <h1 class="search-heading">Sök Handledare</h1>
+
+  <form class="search-form" method="get" action="{{ url_for('search') }}">
+    <input
+      class="search-input"
+      type="text"
+      name="q"
+      placeholder="Sök på kurskod eller kursnamn…"
+      value="{{ query }}"
+      autofocus
+    />
+    <button class="search-btn" type="submit">Sök</button>
+  </form>
+
+  {% if tutors %}
+    <div class="tutor-grid">
+      {% for t in tutors %}
+      <div class="tutor-card">
+        <div class="tutor-name">{{ t.first_name }} {{ t.last_name }}</div>
+        <div class="tutor-program">{{ t.program }}</div>
+        {% if t.kurser %}
+        <div class="tutor-courses">
+          {% for kurs in t.kurser %}
+          <span class="tutor-course-tag">{{ kurs }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if t.bio %}
+        <p class="tutor-bio">{{ t.bio }}</p>
+        {% endif %}
+        <div class="tutor-meta">
+          Betyg: {{ "%.1f"|format(t.betyg) }} &nbsp;·&nbsp; {{ t.antal_sessioner }} sessioner
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      {% if query %}
+        Inga handledare hittades för "{{ query }}".
+      {% else %}
+        Inga handledare är registrerade ännu.
+      {% endif %}
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

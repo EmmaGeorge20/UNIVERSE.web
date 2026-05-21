@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block body %}
+
+<main class="search-main">
+
+  <div class="search-hero">
+    <h1>Ansökan för att blihandledare</h1>
+    <p class="search-sub">Fyll i formuläret nedan och din ansökan granskas av våra administratör innan du godkänns</p>
+  </div>
+
+  <div class="bli-handledare-wrap">
+    <form method="POST" action="/bli-handledare" class="bli-handledare-form" enctype="multipart/form-data">
+
+      <div class="bli-field">
+        <label for="bio">Om dig</label>
+        <p class="bli-field-hint">Berätta varför du vill bli handledare och vad du kan bidra med</p>
+        <textarea
+          id="bio"
+          name="bio"
+          rows="5"
+          placeholder="Jag har läst kursen och vill hjälpa andra studenter att förstå materialet…"
+          required
+        ></textarea>
+      </div>
+
+      <div class="bli-field">
+        <label>Välj kurser du ansöker för</label>
+        <p class="bli-field-hint">Sök och välj en eller flera kurser du vill handleda i</p>
+
+        <div class="kurs-dropdown-wrap" id="kursDropdownWrap">
+          <div class="kurs-dropdown-trigger" id="kursDropdownTrigger">
+            <span id="kursDropdownLabel">Välj kurser…</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+
+          <div class="kurs-dropdown-panel" id="kursDropdownPanel">
+            <div class="kurs-search-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="kursSearch" placeholder="Sök kurs…" autocomplete="off" />
+            </div>
+            <div class="kurs-options-list" id="kursOptionsList">
+              {% for kurs in kurser %}
+              <label class="kurs-option" data-name="{{ kurs[1]|lower }} {{ kurs[2]|lower }}">
+                <input type="checkbox" name="kurser" value="{{ kurs[0] }}" class="kurs-cb" />
+                <span class="kurs-option-check">
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="kurs-option-text">
+                  <strong>{{ kurs[1] }}</strong>
+                  <small>{{ kurs[2] }}</small>
+                </span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="kurs-selected-tags" id="kursSelectedTags"></div>
+      </div>
+
+      <div class="bli-field">
+        <label for="egen_kurs">Annan kurs (valfritt)</label>
+        <p class="bli-field-hint">Skriv in en kurskod som inte finns i listan ovan</p>
+        <input
+          type="text"
+          id="egen_kurs"
+          name="egen_kurs"
+          placeholder="t.ex. DA999A"
+        />
+      </div>
+
+      <div class="bli-field">
+        <label>Intyg per kurs</label>
+        <p class="bli-field-hint">Ladda upp ett godkänt betyg eller intyg för varje kurs (PDF eller bild)</p>
+        <div class="bli-upload-area" id="uploadArea">
+          <input
+            type="file"
+            name="intyg"
+            id="intyg"
+            multiple
+            accept=".pdf,.jpg,.jpeg,.png"
+            class="bli-file-input"
+          />
+          <div class="bli-upload-inner">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p>Dra och släpp filer här eller <span>klicka för att välja</span></p>
+            <small>PDF, JPG eller PNG — en fil per kurs</small>
+          </div>
+          <div class="bli-file-list" id="fileList"></div>
+        </div>
+      </div>
+
+      <button type="submit" class="bli-submit-btn">Skicka ansökan</button>
+
+    </form>
+  </div>
+
+</main>
+
+<script>
+  // Dropdown toggle
+  const trigger = document.getElementById('kursDropdownTrigger');
+  const panel = document.getElementById('kursDropdownPanel');
+  const wrap = document.getElementById('kursDropdownWrap');
+  const label = document.getElementById('kursDropdownLabel');
+  const tagsContainer = document.getElementById('kursSelectedTags');
+  const searchInput = document.getElementById('kursSearch');
+  const options = document.querySelectorAll('.kurs-option');
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+    if (wrap.classList.contains('open')) searchInput.focus();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  // Search filter
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase();
+    options.forEach(opt => {
+      opt.style.display = opt.dataset.name.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Checkbox change → update tags and label
+  document.querySelectorAll('.kurs-cb').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.kurs-option').classList.toggle('selected', cb.checked);
+      updateTags();
+    });
+  });
+
+  function updateTags() {
+    const checked = document.querySelectorAll('.kurs-cb:checked');
+    tagsContainer.innerHTML = '';
+    checked.forEach(cb => {
+      const opt = cb.closest('.kurs-option');
+      const code = opt.querySelector('strong').textContent;
+      const tag = document.createElement('span');
+      tag.className = 'kurs-tag';
+      tag.innerHTML = `${code} <button type="button" data-val="${cb.value}">×</button>`;
+      tag.querySelector('button').addEventListener('click', () => {
+        cb.checked = false;
+        cb.closest('.kurs-option').classList.remove('selected');
+        updateTags();
+      });
+      tagsContainer.appendChild(tag);
+    });
+    const count = checked.length;
+    label.textContent = count === 0 ? 'Välj kurser…' : `${count} kurs${count > 1 ? 'er' : ''} valda`;
+  }
+
+  // File upload
+  const fileInput = document.getElementById('intyg');
+  const fileList = document.getElementById('fileList');
+  const uploadArea = document.getElementById('uploadArea');
+
+  fileInput.addEventListener('change', updateFileList);
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('drag-over');
+  });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    fileInput.files = e.dataTransfer.files;
+    updateFileList();
+  });
+
+  function updateFileList() {
+    fileList.innerHTML = '';
+    Array.from(fileInput.files).forEach(file => {
+      const item = document.createElement('div');
+      item.className = 'bli-file-item';
+      item.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${file.name}</span>`;
+      fileList.appendChild(item);
+    });
+  }
+</script>
+
+{% endblock %}

@@ -848,7 +848,6 @@ img {
   transform: translateY(-1px);
 }
 
-<<<<<<< Updated upstream
 .hero-image-wrap {
   position: relative;
   min-width: 0;
@@ -2057,7 +2056,7 @@ select:focus,
   font-style: normal;
   font-weight: 500;
 }
-=======
+
 /* Profile dropdown */
 .nav-profile {
     position: relative;
@@ -2149,4 +2148,620 @@ select:focus,
 .nav-dropdown-logout:hover {
     background: #fff0f0;
 }
->>>>>>> Stashed changes
+
+/* =========================================================
+   SÖK-SIDA
+   ========================================================= */
+
+.search-page {
+  min-height: calc(100vh - 104px);
+  padding: 48px 24px 64px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.search-heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+
+.search-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  font-size: 15px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--brand-pink);
+}
+
+.search-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--brand-pink), var(--brand-yellow));
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.search-btn:hover {
+  opacity: 0.88;
+}
+
+.tutor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.tutor-card {
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tutor-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tutor-program {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.tutor-courses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tutor-course-tag {
+  background: var(--accent-soft);
+  color: var(--brand-pink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.tutor-bio {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.tutor-meta {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 64px 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* Course dropdown */
+.kurs-dropdown-wrap {
+  position: relative;
+}
+
+.kurs-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  border: 1.5px solid var(--stroke);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--muted);
+  transition: border-color 0.2s;
+  user-select: none;
+}
+
+.kurs-dropdown-wrap.open .kurs-dropdown-trigger {
+  border-color: var(--brand-pink);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.kurs-dropdown-panel {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--brand-pink);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  z-index: 50;
+  box-shadow: 0 12px 32px rgba(39,33,26,0.1);
+  overflow: hidden;
+}
+
+.kurs-dropdown-wrap.open .kurs-dropdown-panel {
+  display: block;
+}
+
+.kurs-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--stroke);
+  color: var(--muted);
+}
+
+.kurs-search-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: transparent;
+  min-height: unset;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.kurs-options-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.kurs-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.kurs-option:hover {
+  background: var(--accent-soft);
+}
+
+.kurs-option.selected {
+  background: var(--accent-soft);
+}
+
+.kurs-option input[type="checkbox"] {
+  display: none;
+  min-height: unset;
+}
+
+.kurs-option-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--stroke);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.kurs-option.selected .kurs-option-check {
+  background: var(--brand-pink);
+  border-color: var(--brand-pink);
+}
+
+.kurs-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.kurs-option-text strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.kurs-option-text small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.kurs-selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.kurs-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--brand-purple);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.kurs-tag button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--brand-pink);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  font-weight: 700;
+}
+
+.search-hero h1,
+.search-hero p {
+  text-align: center;
+}
+
+.search-main {
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+/* =========================================================
+   BLI HANDLEDARE
+   ========================================================= */
+
+.bli-handledare-wrap {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.bli-handledare-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.bli-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bli-field > label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: "Playfair Display", serif;
+}
+
+.bli-field-hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: -4px;
+}
+
+.bli-handledare-form textarea {
+  width: 100%;
+  min-height: 140px;
+  max-height: 300px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--stroke);
+  border-radius: 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+  box-shadow: none;
+  min-width: unset;
+}
+
+.bli-handledare-form textarea:focus {
+  border-color: var(--brand-pink);
+  box-shadow: 0 0 0 3px rgba(240, 140, 194, 0.15);
+}
+
+.bli-handledare-form input[type="text"] {
+  width: 100%;
+  min-height: unset;
+  height: 48px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--stroke);
+  border-radius: 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  box-shadow: none;
+  min-width: unset;
+}
+
+.bli-handledare-form input[type="text"]:focus {
+  border-color: var(--brand-pink);
+  box-shadow: 0 0 0 3px rgba(240, 140, 194, 0.15);
+}
+
+.bli-upload-area {
+  position: relative;
+  border: 2px dashed var(--stroke);
+  border-radius: 16px;
+  padding: 32px 24px 24px;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+
+.bli-upload-area:hover,
+.bli-upload-area.drag-over {
+  border-color: var(--brand-pink);
+  background: var(--accent-soft);
+}
+
+.bli-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  min-height: unset;
+}
+
+.bli-upload-inner {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.bli-upload-inner svg {
+  color: var(--brand-pink);
+}
+
+.bli-upload-inner p {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.bli-upload-inner p span {
+  color: var(--brand-pink);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.bli-upload-inner small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bli-file-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+/* =========================================================
+   BLI HANDLEDARE
+   ========================================================= */
+
+.bli-handledare-wrap {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.bli-handledare-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.bli-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bli-field > label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: "Playfair Display", serif;
+}
+
+.bli-field-hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: -4px;
+}
+
+.bli-handledare-form textarea {
+  width: 100%;
+  min-height: 140px;
+  max-height: 300px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--stroke);
+  border-radius: 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+  box-shadow: none;
+  min-width: unset;
+}
+
+.bli-handledare-form textarea:focus {
+  border-color: var(--brand-pink);
+  box-shadow: 0 0 0 3px rgba(240, 140, 194, 0.15);
+}
+
+.bli-handledare-form input[type="text"] {
+  width: 100%;
+  min-height: unset;
+  height: 48px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--stroke);
+  border-radius: 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  box-shadow: none;
+  min-width: unset;
+}
+
+.bli-handledare-form input[type="text"]:focus {
+  border-color: var(--brand-pink);
+  box-shadow: 0 0 0 3px rgba(240, 140, 194, 0.15);
+}
+
+.bli-upload-area {
+  position: relative;
+  border: 2px dashed var(--stroke);
+  border-radius: 16px;
+  padding: 32px 24px 24px;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+
+.bli-upload-area:hover,
+.bli-upload-area.drag-over {
+  border-color: var(--brand-pink);
+  background: var(--accent-soft);
+}
+
+.bli-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  min-height: unset;
+}
+
+.bli-upload-inner {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.bli-upload-inner svg {
+  color: var(--brand-pink);
+}
+
+.bli-upload-inner p {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.bli-upload-inner p span {
+  color: var(--brand-pink);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.bli-upload-inner small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bli-file-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.bli-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text);
+  pointer-events: none;
+  min-height: unset;
+  box-shadow: none;
+}
+
+.bli-file-item svg {
+  color: var(--brand-pink);
+  flex-shrink: 0;
+}
+
+.bli-submit-btn {
+  padding: 15px 32px;
+  border-radius: 999px;
+  border: none;
+  background: #1f1b1a;
+  color: #fff;
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+  align-self: flex-start;
+  min-height: unset;
+  box-shadow: none;
+  width: auto;
+}
+
+.bli-submit-btn:hover {
+  background: var(--brand-pink);
+  transform: translateY(-1px);
+}
