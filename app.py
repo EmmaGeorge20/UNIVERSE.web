@@ -49,17 +49,17 @@ def search():
                 cur.execute(
                     """
                     SELECT u.first_name, u.last_name, u.program,
-                           array_agg(k.kurskod) AS kurser,
-                           h.bio, h.betyg, h.antal_sessioner
-                    FROM handledare h
-                    JOIN users u ON h.user_id = u.id
-                    JOIN handledare_kurser hk ON hk.handledare_id = h.id
-                    JOIN kurser k ON k.id = hk.kurs_id
-                    WHERE h.ar_aktiv = TRUE
-                      AND (k.kurskod ILIKE %s OR k.kursnamn ILIKE %s)
+                           array_agg(c.course_code) AS courses,
+                           t.bio, t.rating, t.session_count
+                    FROM tutors t
+                    JOIN users u ON t.user_id = u.id
+                    JOIN tutor_courses tc ON tc.tutor_id = t.id
+                    JOIN courses c ON c.id = tc.course_id
+                    WHERE t.is_active = TRUE
+                      AND (c.course_code ILIKE %s OR c.course_name ILIKE %s)
                     GROUP BY u.first_name, u.last_name, u.program,
-                             h.bio, h.betyg, h.antal_sessioner
-                    ORDER BY h.betyg DESC
+                             t.bio, t.rating, t.session_count
+                    ORDER BY t.rating DESC
                     """,
                     (f"%{query}%", f"%{query}%"),
                 )
@@ -67,28 +67,28 @@ def search():
                 cur.execute(
                     """
                     SELECT u.first_name, u.last_name, u.program,
-                           array_agg(k.kurskod) AS kurser,
-                           h.bio, h.betyg, h.antal_sessioner
-                    FROM handledare h
-                    JOIN users u ON h.user_id = u.id
-                    JOIN handledare_kurser hk ON hk.handledare_id = h.id
-                    JOIN kurser k ON k.id = hk.kurs_id
-                    WHERE h.ar_aktiv = TRUE
+                           array_agg(c.course_code) AS courses,
+                           t.bio, t.rating, t.session_count
+                    FROM tutors t
+                    JOIN users u ON t.user_id = u.id
+                    JOIN tutor_courses tc ON tc.tutor_id = t.id
+                    JOIN courses c ON c.id = tc.course_id
+                    WHERE t.is_active = TRUE
                     GROUP BY u.first_name, u.last_name, u.program,
-                             h.bio, h.betyg, h.antal_sessioner
-                    ORDER BY h.betyg DESC
+                             t.bio, t.rating, t.session_count
+                    ORDER BY t.rating DESC
                     """
                 )
             rows = cur.fetchall()
             for row in rows:
                 tutors.append({
-                    "first_name":      row[0],
-                    "last_name":       row[1],
-                    "program":         row[2],
-                    "kurser":          row[3],
-                    "bio":             row[4],
-                    "betyg":           row[5],
-                    "antal_sessioner": row[6],
+                    "first_name":    row[0],
+                    "last_name":     row[1],
+                    "program":       row[2],
+                    "courses":       row[3],
+                    "bio":           row[4],
+                    "rating":        row[5],
+                    "session_count": row[6],
                 })
             cur.close()
         finally:
@@ -97,26 +97,26 @@ def search():
     return render_template("search.html", tutors=tutors, query=query)
 
 
-@app.route("/bli-handledare", methods=["GET", "POST"])
-def bli_handledare():
+@app.route("/become-tutor", methods=["GET", "POST"])
+def become_tutor():
     email = session.get("user")
     if not email:
         return redirect(url_for("auth.login"))
 
-    kurser = []
+    courses = []
     conn = get_connection()
     if conn is not None:
         try:
             cur = conn.cursor()
-            cur.execute("SELECT id, kurskod, kursnamn FROM kurser ORDER BY kurskod")
-            kurser = cur.fetchall()
+            cur.execute("SELECT id, course_code, course_name FROM courses ORDER BY course_code")
+            courses = cur.fetchall()
             cur.close()
         finally:
             conn.close()
 
     if request.method == "POST":
         bio = request.form.get("bio", "").strip()
-        valda_kurser = request.form.getlist("kurser")
+        valda_kurser = request.form.getlist("courses")
         egen_kurs = request.form.get("egen_kurs", "").strip()
         filer = request.files.getlist("intyg")
 
@@ -135,36 +135,36 @@ def bli_handledare():
                     return redirect(url_for("home"))
                 user_id = row[0]
 
-                cur.execute("SELECT id FROM handledare WHERE user_id = %s", (user_id,))
+                cur.execute("SELECT id FROM tutors WHERE user_id = %s", (user_id,))
                 if cur.fetchone():
                     return redirect(url_for("search"))
 
                 cur.execute(
                     """
-                    INSERT INTO handledare (user_id, bio, betyg, antal_sessioner, ar_aktiv)
+                    INSERT INTO tutors (user_id, bio, rating, session_count, is_active)
                     VALUES (%s, %s, 0.0, 0, FALSE)
                     RETURNING id
                     """,
                     (user_id, bio),
                 )
-                handledare_id = cur.fetchone()[0]
+                tutor_id = cur.fetchone()[0]
 
                 for kurs_id in valda_kurser:
                     cur.execute(
                         """
-                        INSERT INTO handledare_kurser (handledare_id, kurs_id)
+                        INSERT INTO tutor_courses (tutor_id, course_id)
                         VALUES (%s, %s)
                         ON CONFLICT DO NOTHING
                         """,
-                        (handledare_id, int(kurs_id)),
+                        (tutor_id, int(kurs_id)),
                     )
 
                 if egen_kurs:
                     cur.execute(
                         """
-                        INSERT INTO kurser (kurskod, kursnamn)
+                        INSERT INTO courses (course_code, course_name)
                         VALUES (%s, %s)
-                        ON CONFLICT (kurskod) DO NOTHING
+                        ON CONFLICT (course_code) DO NOTHING
                         RETURNING id
                         """,
                         (egen_kurs.upper(), egen_kurs.upper()),
@@ -172,23 +172,23 @@ def bli_handledare():
                     result = cur.fetchone()
                     if not result:
                         cur.execute(
-                            "SELECT id FROM kurser WHERE kurskod = %s",
+                            "SELECT id FROM courses WHERE course_code = %s",
                             (egen_kurs.upper(),),
                         )
                         result = cur.fetchone()
                     if result:
                         cur.execute(
                             """
-                            INSERT INTO handledare_kurser (handledare_id, kurs_id)
+                            INSERT INTO tutor_courses (tutor_id, course_id)
                             VALUES (%s, %s)
                             ON CONFLICT DO NOTHING
                             """,
-                            (handledare_id, result[0]),
+                            (tutor_id, result[0]),
                         )
 
                 for fil in filer:
                     if fil and fil.filename:
-                        filename = f"{handledare_id}_{fil.filename}"
+                        filename = f"{tutor_id}_{fil.filename}"
                         fil.save(os.path.join(upload_folder, filename))
 
                 conn.commit()
@@ -198,7 +198,7 @@ def bli_handledare():
 
         return redirect(url_for("search"))
 
-    return render_template("bli_handledare.html", kurser=kurser)
+    return render_template("become_tutor.html", courses=courses)
 
 
 @app.route("/booking")

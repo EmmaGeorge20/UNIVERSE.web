@@ -39,9 +39,9 @@
               <input type="text" id="kursSearch" placeholder="Sök kurs…" autocomplete="off" />
             </div>
             <div class="kurs-options-list" id="kursOptionsList">
-              {% for kurs in kurser %}
+              {% for kurs in courses %}
               <label class="kurs-option" data-name="{{ kurs[1]|lower }} {{ kurs[2]|lower }}">
-                <input type="checkbox" name="kurser" value="{{ kurs[0] }}" class="kurs-cb" />
+                <input type="checkbox" name="courses" value="{{ kurs[0] }}" class="kurs-cb" />
                 <span class="kurs-option-check">
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                     <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

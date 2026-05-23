@@ -346,16 +346,17 @@ main.chat-page{
     display: flex;
     flex-direction: column;
     height: 100%;
-    box-sizing: content-box;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .message-box {
     display: flex;
     flex-direction: column;
-    height: 90%;
+    flex: 1;
     background-color: #ffffff;
     overflow: hidden;
-    box-sizing: content-box;
+    box-sizing: border-box;
 }
 
 .message-box h2 {
