@@ -12,8 +12,47 @@
 
 {% block body_class %}welcome-page{% endblock %}
 
+{% block before_header %} 
+  <section class="startup-hero">
+    <img
+      class="startup-hero-image"
+      src="{{ url_for('static', filename='universe_startuppage.png') }}"
+      alt="Tre studenter framför universitetet"
+    />
+
+    <div class="startup-content">
+      <div class="startup-logo-row">
+        <img
+          src="{{ url_for('static', filename='universe_logo_mark_transparent.png') }}?v=2"
+          alt="UNI:VERSE logo"
+        />
+      </div>
+
+      <div class="startup-labels">
+        <span class="kicker">Studentplattform</span>
+      </div>
+
+      <h1>Välkommen till UNI:VERSE</h1>
+
+      <p>
+        Ett mjukt och tryggt studentuniversum där du hittar kursstöd,
+        möjligheter och gemenskap på ett ställe.
+      </p>
+
+      <div class="startup-actions">
+        <a class="btn" href="{{ url_for('auth.login') }}">Logga in</a>
+        <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Skapa konto</a>
+      </div>
+
+      <a href="#main-content" class="scroll-down">
+          <span></span>
+      </a>
+    </div>
+  </section>
+{% endblock %}
+
 {% block body %}
-  <main class="home-shell">
+  <main id="main-content" class="home-shell">
     <section class="home-hero">
       <div class="hero-layout">
         <div class="hero-image-wrap">
@@ -94,4 +133,5 @@
       </div>
     </section>
   </main>
+  <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

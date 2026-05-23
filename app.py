@@ -25,12 +25,7 @@ app.register_blueprint(chat)
 
 @app.route("/")
 def index():
-    return redirect(url_for("startup"))
-
-
-@app.route("/startup")
-def startup():
-    return render_template("startup.html")
+    return render_template("index.html")
 
 
 @app.route("/home")
