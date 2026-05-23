@@ -4,7 +4,7 @@ Handels all functions relates to the chat
 
 from flask import Blueprint, render_template, redirect, session, url_for
 from db import get_connection
-from flask_socketio import emit, join_room
+from flask_socketio import emit, join_room, leave_room
 from extensions import socketio
 
 chat = Blueprint("chat", __name__)
@@ -97,11 +97,18 @@ def join_chat(data):
 
     if not user_id:
         return
+    
+    old_room = session.get("current_room")
 
+    if old_room:
+        leave_room(old_room)
+    
     receiver_id = data.get("receiver_id")
     room = get_room_name(user_id, receiver_id)
 
     join_room(room) # Puts the user in correct chat 
+
+    session["current_room"] = room
 
 @socketio.on("send_message") # Starts when frontend (js) sends a new message
 def handle_message(data):

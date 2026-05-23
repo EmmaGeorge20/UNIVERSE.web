@@ -15,18 +15,37 @@ def profile_page():
     """
     GET - Fetches the logged in user's information from the database
           and renders the profile page.
-          Redirects to login if the user is not logged in.
+          Shows a guest profile if the user is not logged in.
     """
-    if not session.get("user"):
-        return redirect(url_for("auth.login"))
-    
-    email = session["user"]
-    conn = get_connection()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-    user = cur.fetchone()
-    cur.close()
-    conn.close()
+    email = session.get("user", "guest")
+    user = {
+        "first_name": "Gäst",
+        "last_name": "",
+        "email": email,
+        "school": "UNI:VERSE",
+        "program": "Student",
+        "phone": "Ej angivet",
+    }
+
+    if email != "guest":
+        conn = get_connection()
+        if conn is not None:
+            try:
+                cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                cur.execute(
+                    """
+                    SELECT first_name, last_name, email, school, program, phone
+                    FROM users
+                    WHERE email = %s
+                    """,
+                    (email,),
+                )
+                row = cur.fetchone()
+                if row:
+                    user = row
+                cur.close()
+            finally:
+                conn.close()
 
     return render_template("profile.html", user=user)
 
