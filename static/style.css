@@ -298,6 +298,13 @@ main.chat-page{
     
 }
 
+.chat-login-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
 /* Vänster sida */
 .chat-sidebar {
     background-color: #ffffff;
@@ -417,21 +424,6 @@ main.chat-page{
     padding: 14px 18px;
     font-size: 15px;
     outline: none;
-}
-
-.inputs button {
-    border: none;
-    background-color: #fc5eca;
-    color: white;
-    padding: 12px 22px;
-    border-radius: 999px;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.inputs button:hover {
-    background-color: #ef8dbb;
 }
 
 /* Om inga chattar finns */
@@ -649,10 +641,6 @@ html {
   --shadow: 0 22px 54px rgba(39, 33, 26, 0.11);
 }
 
-* {
-  box-sizing: border-box;
-}
-
 html {
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
@@ -674,19 +662,9 @@ body.welcome-page {
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
 a:focus-visible {
   outline: 3px solid rgba(238, 133, 173, 0.55);
   outline-offset: 4px;
-}
-
-img {
-  display: block;
-  max-width: 100%;
 }
 
 .welcome-page {
@@ -1426,21 +1404,6 @@ select:focus,
    radial-gradient(circle at 80% 12%, rgba(240, 140, 194, 0.2), transparent 30%),
    linear-gradient(145deg, rgba(255, 238, 247, 0.94), rgba(255, 248, 222, 0.9));
 }
-
-
-.soft-kicker {
- width: fit-content;
- padding: 7px 13px;
- border-radius: 999px;
- background: rgba(255, 255, 255, 0.72);
- border: 1px solid rgba(29, 28, 26, 0.08);
- color: #8e4a70;
- font-size: 12px;
- font-weight: 700;
- text-transform: uppercase;
- letter-spacing: 0.1em;
-}
-
 
 .register-intro h1 {
  margin: 18px 0 12px;
@@ -2347,149 +2310,6 @@ select:focus,
 .search-main {
   padding-left: 5%;
   padding-right: 5%;
-}
-
-/* =========================================================
-   BLI HANDLEDARE
-   ========================================================= */
-
-.bli-handledare-wrap {
-  max-width: 620px;
-  margin: 0 auto;
-}
-
-.bli-handledare-form {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.bli-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.bli-field > label {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  font-family: "Playfair Display", serif;
-}
-
-.bli-field-hint {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: -4px;
-}
-
-.bli-handledare-form textarea {
-  width: 100%;
-  min-height: 140px;
-  max-height: 300px;
-  padding: 13px 16px;
-  border: 1.5px solid var(--stroke);
-  border-radius: 12px;
-  font-family: "Manrope", sans-serif;
-  font-size: 14px;
-  background: var(--surface);
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.2s;
-  resize: vertical;
-  box-shadow: none;
-  min-width: unset;
-}
-
-.bli-handledare-form textarea:focus {
-  border-color: var(--brand-pink);
-  box-shadow: 0 0 0 3px rgba(240, 140, 194, 0.15);
-}
-
-.bli-handledare-form input[type="text"] {
-  width: 100%;
-  min-height: unset;
-  height: 48px;
-  padding: 13px 16px;
-  border: 1.5px solid var(--stroke);
-  border-radius: 12px;
-  font-family: "Manrope", sans-serif;
-  font-size: 14px;
-  background: var(--surface);
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.2s;
-  box-shadow: none;
-  min-width: unset;
-}
-
-.bli-handledare-form input[type="text"]:focus {
-  border-color: var(--brand-pink);
-  box-shadow: 0 0 0 3px rgba(240, 140, 194, 0.15);
-}
-
-.bli-upload-area {
-  position: relative;
-  border: 2px dashed var(--stroke);
-  border-radius: 16px;
-  padding: 32px 24px 24px;
-  text-align: center;
-  transition: border-color 0.2s, background 0.2s;
-  cursor: pointer;
-}
-
-.bli-upload-area:hover,
-.bli-upload-area.drag-over {
-  border-color: var(--brand-pink);
-  background: var(--accent-soft);
-}
-
-.bli-file-input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-  min-height: unset;
-}
-
-.bli-upload-inner {
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-}
-
-.bli-upload-inner svg {
-  color: var(--brand-pink);
-}
-
-.bli-upload-inner p {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-}
-
-.bli-upload-inner p span {
-  color: var(--brand-pink);
-  font-weight: 700;
-  text-decoration: underline;
-}
-
-.bli-upload-inner small {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.bli-file-list {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
 }
 
 /* =========================================================

@@ -56,7 +56,8 @@ def chat_page(receiver_id):
         room=room,
         chats=chats,
         messages=messages,
-        no_chats=False
+        no_chats=False, 
+        logged_in=True
     )
 
 
@@ -87,7 +88,8 @@ def chats_page():
         chat_id=None,
         room=None,
         messages=[],
-        no_chats=True
+        no_chats=True,
+        logged_in=True
     )
    
 @socketio.on("join_chat")  # starts when frontend (js) sends socketio.emit("join_chat")
