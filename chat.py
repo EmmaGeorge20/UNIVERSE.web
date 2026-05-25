@@ -12,16 +12,21 @@ chat = Blueprint("chat", __name__)
 @chat.route("/chat/<int:receiver_id>") # rout for chat
 def chat_page(receiver_id):
     ''' 
-    Opens a specific chat with the logges in user and the choosen reciver 
+    Opens a specific chat with the logges in user and 
+    the choosen reciver. If user is not logged in then 
+    it open chat.html and shows tht the user needs to 
+    log in. 
 
     Args: 
-        receiver_id - takes receiver id from url to know witch receiver it is 
+        receiver_id - takes receiver id from url to know 
+                      witch receiver it is 
     
     Return: 
-        render_template - Sends information to the choosen tamplate
+        render_template - Sends information to the choosen
+                          tamplate
     '''
 
-    if "user_id" not in session: # if user is not logged in then it redirects to login page 
+    if "user_id" not in session:
         return render_template(
         "chat.html",
         logged_in=False
@@ -66,6 +71,15 @@ def chat_page(receiver_id):
 
 @chat.route("/chats")
 def chats_page():
+    '''
+    The route that the user uses if the go from the 
+    nav-bar. Checks which chat was uses most
+    recently and opens that one
+
+    Return: 
+        render_template - Sends information to the choosen
+                          tamplate
+    '''
     if "user_id" not in session:
         return render_template(
         "chat.html",
@@ -100,7 +114,13 @@ def chats_page():
    
 @socketio.on("join_chat")  # starts when frontend (js) sends socketio.emit("join_chat")
 def join_chat(data):
-    '''Puts the user in a chatroom'''
+    '''
+    Puts the user in a chatroom
+
+    Args: 
+        data - data from frontend, js, that 
+               flask/socketIO needs 
+    '''
     user_id = session.get("user_id")
 
     if not user_id:
@@ -120,6 +140,12 @@ def join_chat(data):
 
 @socketio.on("send_message") # Starts when frontend (js) sends a new message
 def handle_message(data):
+    '''
+    Saves messages to the database and sends them out to all receivers
+
+    Args:
+        data - infromation from frontend that saved in the database and sent out to receivers
+    '''
     if "user_id" not in session:
         return
 
@@ -160,7 +186,13 @@ def handle_message(data):
 
 
 def get_room_name(user1_id, user2_id):
-    '''Creats a room name with user ids so that the chat can be saved and users can see old messages'''
+    '''
+    Creats a room name with user ids so that the chat 
+    can be saved and users can see old messages
+    
+    Returns: 
+        chat_id - id that the chat has
+    '''
     ids = sorted([int(user1_id), int(user2_id)])
     return f"chat_{ids[0]}_{ids[1]}"
 
