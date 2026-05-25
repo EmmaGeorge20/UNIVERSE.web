@@ -80,13 +80,13 @@ def register():
            If failed, displays an error message.
     """
     error = None
-    programs = []
+
     if request.method == "POST":
         first_name = request.form["first_name"]
         last_name  = request.form["last_name"]
         email      = request.form["email"]
         school     = request.form["school"]
-        program    = request.form["program"]
+        
         phone      = request.form["phone"]
         gender     = request.form.get("gender")
         password   = request.form["password"]
@@ -105,9 +105,9 @@ def register():
                         error = "Det finns redan ett konto med den e-postadressen."
                     else:
                         cur.execute("""
-                            INSERT INTO users (first_name, last_name, email, school, program, phone, password)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)
-                        """, (first_name, last_name, email, school, program, phone, password))
+                            INSERT INTO users (first_name, last_name, email, school, phone, password)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (first_name, last_name, email, school, phone, password))
                         conn.commit()
                         session["user"] = email
                         return redirect(url_for("auth.login"))
@@ -117,4 +117,4 @@ def register():
                     print("Fel vid registrering:", e)
                     error = "Något gick fel, försök igen."
 
-    return render_template("register.html", error=error, programs=programs)
+    return render_template("register.html", error=error)

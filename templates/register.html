@@ -55,17 +55,6 @@
                                <input type="text" name="school" autocomplete="organization" placeholder="Din skola" required>
                            </label>
 
-
-                           <label class="compact">
-                               <span>Program</span>
-                               <select name="program" required>
-                                   <option value="" selected disabled>Välj program</option>
-                                   {% for program in programs %}
-                                   <option value="{{ program }}">{{ program }}</option>
-                                   {% endfor %}
-                               </select>
-                           </label>
-
                            <label class="compact">
                             <span>Telefonnummer</span>
                             <input type="tel" name="phone" autocomplete="tel" placeholder="0701234567" required>
