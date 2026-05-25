@@ -25,12 +25,20 @@ app.register_blueprint(chat)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    logged_in = "user_id" in session
+
+    return render_template(
+        "index.html",
+        logged_in=logged_in)
 
 
 @app.route("/home")
 def home():
-    return render_template("index.html")
+   logged_in = "user_id" in session
+
+   return render_template(
+        "index.html",
+        logged_in=logged_in)
 
 
 @app.route("/search")

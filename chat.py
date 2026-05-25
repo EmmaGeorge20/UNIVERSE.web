@@ -22,7 +22,10 @@ def chat_page(receiver_id):
     '''
 
     if "user_id" not in session: # if user is not logged in then it redirects to login page 
-        return redirect(url_for("auth.login"))
+        return render_template(
+        "chat.html",
+        logged_in=False
+    )
 
     user_id = session["user_id"] # Takes the userer that is logged in and saves it as user_id
 
@@ -64,7 +67,10 @@ def chat_page(receiver_id):
 @chat.route("/chats")
 def chats_page():
     if "user_id" not in session:
-        return redirect(url_for("auth.login"))
+        return render_template(
+        "chat.html",
+        logged_in=False
+    )
 
     user_id = session["user_id"]
 

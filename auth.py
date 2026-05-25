@@ -67,7 +67,8 @@ def logout():
     """
     session.pop("user", None)
     session.pop("role", None)
-    return redirect(url_for("startup"))
+    session.clear()
+    return redirect(url_for("home"))
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():

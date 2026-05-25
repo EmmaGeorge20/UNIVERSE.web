@@ -12,7 +12,9 @@
 
 {% block body_class %}welcome-page{% endblock %}
 
+
 {% block before_header %} 
+{% if not logged_in %} 
   <section class="startup-hero">
     <img
       class="startup-hero-image"
@@ -49,7 +51,9 @@
       </a>
     </div>
   </section>
+  {% endif %}
 {% endblock %}
+
 
 {% block body %}
   <main id="main-content" class="home-shell">
