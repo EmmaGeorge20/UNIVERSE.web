@@ -44,6 +44,18 @@ def chat_page(receiver_id):
 
     messages = cur.fetchall()
 
+    cur.execute("""
+                SELECT c.id, c.sender_id, co.course_code, co.course_name, c.meeting_time, c.status
+                FROM contracts c
+                LEFT JOIN courses co ON co.id = c.course_id
+                WHERE c.chat_id = %s
+                ORDER BY c.id ASC
+    """, (chat_id,))
+    contracts = cur.fetchall()
+
+    cur.execute("SELECT id, course_code, course_name FROM courses")
+    courses = cur.fetchall()
+
     cur.close()
     conn.close()
 
@@ -56,6 +68,8 @@ def chat_page(receiver_id):
         room=room,
         chats=chats,
         messages=messages,
+        courses=courses,
+        contracts=contracts,
         no_chats=False
     )
 
@@ -187,3 +201,71 @@ def get_or_create_chat(user_id, receiver_id):
     conn.close()
 
     return chat_id
+
+@socketio.on("send_booking")
+def handle_booking(data):
+    """Saves a booking request and notfies the receiver."""
+    if "user_id" not in session: 
+        return 
+    
+    sender_id = session["user_id"]
+    receiver_id = data.get("receiver_id")
+    chat_id = data.get("chat_id")
+    course_id = data.get("course_id", None)
+    meeting_time = data.get("meeting_time")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO contracts (chat_id, sender_id, receiver_id, course_id, meeting_time)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING id
+    """, (chat_id, sender_id, receiver_id, course_id, meeting_time))
+
+    contract_id = cur.fetchone()[0]
+
+    cur.execute("SELECT course_code, course_name FROM courses WHERE id = %s", (course_id,))
+    course = cur.fetchone()
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    room = get_room_name(sender_id, receiver_id)
+
+    emit("receive_booking", {
+        "contract_id": contract_id,
+        "sender_id": sender_id,
+        "meeting_time": meeting_time
+    }, to=room)
+
+@socketio.on("respond_booking")
+def handle_booking_response(data):
+    """Updates the contract status when accepted or rejected."""
+    if "user_id" not in session:
+        return
+
+    contract_id = data.get("contract_id")
+    status = data.get("status")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE contracts SET status = %s WHERE id = %s", (status, contract_id))
+    conn.commit()
+
+    cur.execute("SELECT sender_id, receiver_id FROM contracts WHERE id = %s", (contract_id,))
+    contract = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    room = get_room_name(contract[0], contract[1])
+
+    emit("booking_response", {
+        "contract_id": contract_id,
+        "status": status
+    }, to=room)
+
+

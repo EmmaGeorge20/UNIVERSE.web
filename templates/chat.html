@@ -34,7 +34,6 @@
                 <h2>{{room}}</h2>
                 <div class="messages" id="chat">
                     {% for message in messages %}
-
                         {% if message[0] == session["user_id"] %}
                             <div class="message me">
                                 {{ message[1] }}
@@ -44,10 +43,38 @@
                                 {{ message[1] }}
                             </div>
                         {% endif %}
-
                     {% endfor %}
+
+                    {% for contract in contracts %}
+                    <div class="message booking-card {% if contract[1] == session['user_id'] %}me{% else %}other{% endif %}">
+                        <p><strong>{{ contract[2] }} – {{ contract[3] }}</strong></p>
+                        <p> {{ contract[4] }}</p>
+                        {% if contract[5] == 'pending' and contract[1] != session['user_id'] %}
+                        <button class="respond-btn" data-id="{{ contract[0] }}" data-status="accepted">Acceptera</button>
+                        <button class="respond-btn" data-id="{{ contract[0] }}" data-status="rejected">Neka</button>
+                        {% elif contract[5] == 'pending' %}
+                        <p>Väntar på svar...</p>
+                        {% elif contract[5] == 'accepted' %}
+                        <p>Accepterad</p>
+                        {% elif contract[5] == 'rejected' %}
+                        <p>Nekad</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
                 </div>
+
+                 <div id="booking-form" style="display:none; padding: 16px; border-top: 1px solid #ddd; background: white;">
+                    <h3>Boka handledning</h3>
+                    <label>Datum och tid:</label>
+                    <input type="datetime-local" id="booking-time">
+                    <br><br>
+                    <button type="button" onclick="sendBooking()">Skicka förfrågan</button>
+                    <button type="button" onclick="toggleBookingForm()">Avbryt</button>
+                </div>
+
                 <div class="inputs">
+                     <button type="button" onclick="toggleBookingForm()">📅</button>
                     <input type="text" placeholder="Meddelande..." name="message" id ="message">
                     <button type="button" name="send" id="send-btn" onclick="sendMessage()">Skicka</button>
                 </div>
@@ -59,6 +86,7 @@
         <script>
             const CURRENT_USER_ID = "{{ session['user_id'] }}";
             const RECEIVER_ID = "{{ receiver_id }}";
+            const CHAT_ID = "{{ chat_id }}";
         </script>
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>

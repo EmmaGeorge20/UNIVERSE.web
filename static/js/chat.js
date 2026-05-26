@@ -50,7 +50,6 @@ function toggleBookingForm() {
 }
 
 function sendBooking() {
-    const courseId = document.getElementById("booking-course").value;
     const meetingTime = document.getElementById("booking-time").value;
 
     if (!meetingTime) {
@@ -59,9 +58,8 @@ function sendBooking() {
     }
 
     socketio.emit("send_booking", {
-        receiver_id: RECEIVER_ID,
-        chat_id: CHAT_ID,
-        course_id: courseId,
+        receiver_id: parseInt(RECEIVER_ID),
+        chat_id: parseInt(CHAT_ID),
         meeting_time: meetingTime
     });
 
@@ -74,22 +72,22 @@ socketio.on("receive_booking", function(data) {
 
     if (data.sender_id == CURRENT_USER_ID) {
         msg.classList.add("me");
+        msg.dataset.id = data.contract_id;  
         msg.innerHTML = `
-            <p>📅 Bokningsförfrågan skickad</p>
-            <p><strong>Kurs:</strong> ${data.course_name}</p>
+            <p>Bokningsförfrågan skickad</p>
+
             <p><strong>Tid:</strong> ${data.meeting_time}</p>
             <p>Väntar på svar...</p>
         `;
     } else {
         msg.classList.add("other");
         msg.innerHTML = `
-            <p>📅 Bokningsförfrågan</p>
-            <p><strong>Kurs:</strong> ${data.course_name}</p>
-            <p><strong>Tid:</strong> ${data.meeting_time}</p>
-            <button onclick="respondBooking(${data.contract_id}, 'accepted')">✅ Acceptera</button>
-            <button onclick="respondBooking(${data.contract_id}, 'rejected')">❌ Neka</button>
-        `;
-    }
+        <p>Bokningsförfrågan</p>
+        <p><strong>Tid:</strong> ${data.meeting_time}</p>
+        <button class="respond-btn" data-id="${data.contract_id}" data-status="accepted">Acceptera</button>
+        <button class="respond-btn" data-id="${data.contract_id}" data-status="rejected">Neka</button>
+    `;
+}
 
     chat.appendChild(msg);
     chat.scrollTop = chat.scrollHeight;
@@ -102,7 +100,36 @@ function respondBooking(contractId, status) {
     });
 }
 
-socketio.on("booking_response", function(data) {
-    alert(`Bokning ${data.status === "accepted" ? "accepterad ✅" : "nekad ❌"}`);
+document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("respond-btn")) {
+        const contractId = e.target.dataset.id;
+        const status = e.target.dataset.status;
+        respondBooking(contractId, status);
+    }
 });
+
+socketio.on("booking_response", function(data) {
+    const status = data.status === "accepted" ? "Accepterad" : "Nekad";
+    
+    const buttons = document.querySelectorAll(`.respond-btn[data-id="${data.contract_id}"]`);
+    if (buttons.length > 0) {
+        const card = buttons[0].closest(".booking-card");
+        buttons.forEach(btn => btn.remove());
+        const p = document.createElement("p");
+        p.textContent = status;
+        card.appendChild(p);
+    }
+
+    const meCards = document.querySelectorAll(`.booking-card.me[data-id="${data.contract_id}"]`);
+    meCards.forEach(card => {
+        const waiting = card.querySelector("p:last-child");
+        if (waiting && waiting.textContent === "Väntar på svar...") {
+            waiting.textContent = status;
+         }
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+});
+
+
 
