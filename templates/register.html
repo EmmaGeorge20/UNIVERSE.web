@@ -57,16 +57,6 @@
 
 
                            <label class="compact">
-                               <span>Program</span>
-                               <select name="program" required>
-                                   <option value="" selected disabled>Välj program</option>
-                                   {% for program in programs %}
-                                   <option value="{{ program }}">{{ program }}</option>
-                                   {% endfor %}
-                               </select>
-                           </label>
-
-                           <label class="compact">
                             <span>Telefonnummer</span>
                             <input type="tel" name="phone" autocomplete="tel" placeholder="0701234567" required>
                            </label>
@@ -88,7 +78,7 @@
 
 
                        <div class="register-actions">
-                           <a href="{{ url_for('auth.login') }}">Har du redan konto?</a>
+                           <a href="{{ url_for('auth.login') }}">Har du redan ett konto?</a>
                            <button class="register-submit" type="submit">Skapa konto</button>
                        </div>
                    </form>

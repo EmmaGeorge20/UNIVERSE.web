@@ -80,13 +80,12 @@ def register():
            If failed, displays an error message.
     """
     error = None
-    programs = []
     if request.method == "POST":
         first_name = request.form["first_name"]
         last_name  = request.form["last_name"]
         email      = request.form["email"]
         school     = request.form["school"]
-        program    = request.form["program"]
+        program    = ""
         phone      = request.form["phone"]
         gender     = request.form.get("gender")
         password   = request.form["password"]
@@ -117,4 +116,4 @@ def register():
                     print("Fel vid registrering:", e)
                     error = "Något gick fel, försök igen."
 
-    return render_template("register.html", error=error, programs=programs)
+    return render_template("register.html", error=error)
