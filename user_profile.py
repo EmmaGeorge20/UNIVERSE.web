@@ -10,16 +10,50 @@ from db import get_connection
 
 profile_bp = Blueprint("profile", __name__)
 
-@profile_bp.route("/profile")
+def update_contact_details(email):
+    phone = request.form.get("phone", "").strip()
+    school = request.form.get("school", "").strip()
+    program = request.form.get("program", "").strip()
+
+    conn = get_connection()
+    if conn is None:
+        return
+
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE users
+            SET phone = %s,
+                school = %s,
+                program = %s
+            WHERE email = %s
+            """,
+            (phone, school, program, email),
+        )
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+@profile_bp.route("/profile", methods=["GET", "POST"])
 def profile_page():
     """
     GET - Fetches the logged in user's information from the database
           and renders the profile page.
-          Shows a guest profile if the user is not logged in.
+          Shows a login message if the user is not logged in.
     """
-    email = session.get("user", "guest")
+    email = session.get("user")
+    if not email or email == "guest":
+        return render_template("profile.html", login_required=True)
+
+    if request.method == "POST":
+        update_contact_details(email)
+        return redirect(url_for("profile.profile_page"))
+
     user = {
-        "first_name": "Gäst",
+        "first_name": "",
         "last_name": "",
         "email": email,
         "school": "UNI:VERSE",
@@ -27,27 +61,26 @@ def profile_page():
         "phone": "Ej angivet",
     }
 
-    if email != "guest":
-        conn = get_connection()
-        if conn is not None:
-            try:
-                cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-                cur.execute(
-                    """
-                    SELECT first_name, last_name, email, school, program, phone
-                    FROM users
-                    WHERE email = %s
-                    """,
-                    (email,),
-                )
-                row = cur.fetchone()
-                if row:
-                    user = row
-                cur.close()
-            finally:
-                conn.close()
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            cur.execute(
+                """
+                SELECT first_name, last_name, email, school, program, phone
+                FROM users
+                WHERE email = %s
+                """,
+                (email,),
+            )
+            row = cur.fetchone()
+            if row:
+                user = row
+            cur.close()
+        finally:
+            conn.close()
 
-    return render_template("profile.html", user=user)
+    return render_template("profile.html", user=user, login_required=False)
 
 @profile_bp.route("/apply-tutor", methods=["GET", "POST"])
 def apply_tutor():

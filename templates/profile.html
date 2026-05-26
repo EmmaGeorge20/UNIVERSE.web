@@ -10,12 +10,21 @@
 
 {% block body %}
 <main class="profile-page">
- <!-- HERO SECTION: Background image, user info and statistics -->
+{% if login_required %}
+  <section class="profile-login-required">
+    <div class="profile-login-card">
+      <span class="profile-login-kicker">Privat profil</span>
+      <h1>Logga in för att se din profil</h1>
+      <a href="{{ url_for('auth.login') }}" class="profile-login-button">Logga in</a>
+    </div>
+  </section>
+{% else %}
+ <!-- HERO SECTION: Profile image and user info -->
   
   <section class="profile-hero">
- <!-- Background image with overlay -->
+ <!-- Profile background image -->
     <div class="profile-hero-bg">
-      <img src="{{ url_for('static', filename='universe_homepage.png') }}" alt="" aria-hidden="true">
+      <img src="{{ url_for('static', filename='profile_background.png') }}" alt="" aria-hidden="true">
       <div class="profile-hero-overlay"></div>
     </div>
  <!-- User's name, badge and booking button -->
@@ -29,25 +38,6 @@
           <h1>{{ user.first_name }} {{ user.last_name }}</h1>
           <p class="profile-bio">{{ user.program }}-student vid {{ user.school }}</p>
         </div>
-      </div>
-     <!-- Button to book a session -->
-      <a href="#" class="profile-book-btn">Boka session</a>
-    </div>
-   <!-- Rating, sessions and courses -->
-    <div class="profile-stats">
-      <div class="profile-stat">
-        <strong>4.9/5</strong>
-        <span>Betyg</span>
-      </div>
-      <div class="profile-stat-divider"></div>
-      <div class="profile-stat">
-        <strong>124</strong>
-        <span>Sessioner</span>
-      </div>
-      <div class="profile-stat-divider"></div>
-      <div class="profile-stat">
-        <strong>3</strong>
-        <span>Verifierade kurser</span>
       </div>
     </div>
   </section>
@@ -70,29 +60,30 @@
         <!-- Contact details fetched from the database -->
       <div class="profile-card">
         <h2>Kontaktuppgifter</h2>
-        <div class="profile-info-list">
+        <form class="profile-contact-form" method="POST">
           <div class="profile-info-row">
-            <span class="profile-info-label">E-post</span>
-            <span>{{ user.email }}</span>
+            <label class="profile-info-label" for="profile-email">E-post</label>
+            <span id="profile-email">{{ user.email }}</span>
           </div>
           <div class="profile-info-row">
-            <span class="profile-info-label">Telefon</span>
-            <span>{{ user.phone }}</span>
+            <label class="profile-info-label" for="profile-phone">Telefon</label>
+            <input id="profile-phone" type="text" name="phone" value="{{ user.phone }}">
           </div>
           <div class="profile-info-row">
-            <span class="profile-info-label">Skola</span>
-            <span>{{ user.school }}</span>
+            <label class="profile-info-label" for="profile-school">Skola</label>
+            <input id="profile-school" type="text" name="school" value="{{ user.school }}">
           </div>
           <div class="profile-info-row">
-            <span class="profile-info-label">Program</span>
-            <span>{{ user.program }}</span>
+            <label class="profile-info-label" for="profile-program">Program</label>
+            <input id="profile-program" type="text" name="program" value="{{ user.program }}">
           </div>
-        </div>
+          <button type="submit" class="profile-save-btn">Spara kontaktuppgifter</button>
+        </form>
       </div>
     </div>
 
     
-    <!-- RIGHT: Upcoming time slots and latest review -->
+    <!-- RIGHT: Upcoming time slots -->
     <aside class="profile-sidebar">
     <!-- Available time slots for booking -->
       <div class="profile-card">
@@ -112,16 +103,9 @@
           </div>
         </div>
       </div>
-        <!-- Latest review from a student -->
-      <div class="profile-card profile-review-card">
-        <h2>Senaste omdöme</h2>
-        <blockquote>
-          "Väldigt tydlig genomgång. Jag förstod gränsvärden mycket bättre efter sessionen."
-        </blockquote>
-        <cite>— Sara, Analys I</cite>
-      </div>
     </aside>
 
   </div>
+{% endif %}
 </main>
 {% endblock %}
