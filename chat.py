@@ -79,8 +79,7 @@ def chat_page(receiver_id):
         no_chats=False, 
         logged_in=True,
         courses=courses,
-        contracts=contracts,
-        no_chats=False
+        contracts=contracts
     )
 
 
