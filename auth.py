@@ -36,26 +36,31 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
         role = request.form["role"]
+
         if not valid_password(password):
-            error = "Lösenordet måste vara minst 8 tecken, innehålla minst en bokstav och en siffra"
+            error = "Lösenordet måste vara minst 8 tecken, innehålla minst en bokstav och en siffra."
         else:
             conn = get_connection()
             if conn is None:
                 error = "Kunde inte ansluta till databasen."
             else:
                 cur = conn.cursor()
-                cur.execute("""SELECT id, email FROM users WHERE email = %s AND password = %s""", (email, password))
+
+                # Check if email exists
+                cur.execute("SELECT id, email, password FROM users WHERE email = %s", (email,))
                 user = cur.fetchone()
                 cur.close()
                 conn.close()
-                
-                if user: 
+
+                if not user:
+                    error = "Inget konto hittades med den e-postadressen."
+                elif user[2] != password:
+                    error = "Fel lösenord, försök igen."
+                else:
                     session["user_id"] = user[0]
                     session["user"] = user[1]
                     session["role"] = role
                     return redirect(url_for("home"))
-                else:
-                    error = "Fel epost, lösenord eller kontotyp"
 
     return render_template("login.html", error=error)
 

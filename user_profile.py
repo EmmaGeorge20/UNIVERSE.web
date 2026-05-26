@@ -154,9 +154,9 @@ def apply_tutor():
     """
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("...")
+    cur.execute("SELECT id, course_code, course_name FROM courses ORDER BY course_code")
     courses = cur.fetchall()
     cur.close()
     conn.close()
 
-    return render_template("apply_tutor.html", courses=courses)
+    return render_template("become_tutor.html", kurser=courses)

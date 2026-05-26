@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — UNI:VERSE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="admin-wrap">
+
+  <div class="admin-nav">
+    <span class="admin-nav-brand">UNI:VERSE Admin</span>
+    <div class="admin-nav-links">
+      <a href="#ansokningar" class="admin-nav-link">Ansökningar</a>
+      <a href="#studenter" class="admin-nav-link">Studenter</a>
+    </div>
+    <a href="{{ url_for('admin_logout') }}" class="admin-logout">Logga ut</a>
+  </div>
+
+  <div class="admin-main">
+
+    <!-- ANSÖKNINGAR -->
+    <section id="ansokningar">
+      <h1>Handledaransökningar</h1>
+      <p class="admin-sub">Granska och godkänn eller neka ansökningar nedan</p>
+
+      {% set pending = applications | selectattr('status', 'equalto', 'pending') | list %}
+      {% set approved = applications | selectattr('status', 'equalto', 'approved') | list %}
+      {% set denied = applications | selectattr('status', 'equalto', 'denied') | list %}
+
+      {% if pending %}
+      <h2 class="admin-section-title">Väntande ({{ pending|length }})</h2>
+      <div class="admin-cards">
+        {% for app in pending %}
+        <div class="admin-card pending">
+          <div class="admin-card-top">
+            <div class="admin-avatar">{{ app.first_name[0] }}{{ app.last_name[0] }}</div>
+            <div>
+              <strong>{{ app.first_name }} {{ app.last_name }}</strong>
+              <span>{{ app.program }}</span>
+              <span>{{ app.email }}</span>
+            </div>
+            <span class="admin-badge pending">Väntande</span>
+          </div>
+          {% if app.bio %}
+          <p class="admin-bio">{{ app.bio }}</p>
+          {% endif %}
+          <div class="admin-kurser">
+            {% for k in app.kurser %}
+            {% if k %}<span class="course-tag">{{ k }}</span>{% endif %}
+            {% endfor %}
+          </div>
+          <div class="admin-actions">
+            <form method="POST" action="/admin/godkann/{{ app.id }}">
+              <button type="submit" class="admin-btn approve">✓ Godkänn</button>
+            </form>
+            <form method="POST" action="/admin/neka/{{ app.id }}">
+              <button type="submit" class="admin-btn deny">✕ Neka</button>
+            </form>
+            <form method="POST" action="/admin/ta-bort-handledare/{{ app.id }}"
+              onsubmit="return confirm('Ta bort denna ansökan?')">
+              <button type="submit" class="admin-btn delete">Ta bort</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if approved %}
+      <h2 class="admin-section-title">Godkända ({{ approved|length }})</h2>
+      <div class="admin-cards">
+        {% for app in approved %}
+        <div class="admin-card approved">
+          <div class="admin-card-top">
+            <div class="admin-avatar">{{ app.first_name[0] }}{{ app.last_name[0] }}</div>
+            <div>
+              <strong>{{ app.first_name }} {{ app.last_name }}</strong>
+              <span>{{ app.program }}</span>
+              <span>{{ app.email }}</span>
+            </div>
+            <span class="admin-badge approved">Godkänd</span>
+          </div>
+          <div class="admin-kurser">
+            {% for k in app.kurser %}
+            {% if k %}<span class="course-tag">{{ k }}</span>{% endif %}
+            {% endfor %}
+          </div>
+          <div class="admin-actions">
+            <form method="POST" action="/admin/ta-bort-handledare/{{ app.id }}"
+              onsubmit="return confirm('Ta bort denna handledare?')">
+              <button type="submit" class="admin-btn delete">Ta bort</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if denied %}
+      <h2 class="admin-section-title">Nekade ({{ denied|length }})</h2>
+      <div class="admin-cards">
+        {% for app in denied %}
+        <div class="admin-card denied">
+          <div class="admin-card-top">
+            <div class="admin-avatar">{{ app.first_name[0] }}{{ app.last_name[0] }}</div>
+            <div>
+              <strong>{{ app.first_name }} {{ app.last_name }}</strong>
+              <span>{{ app.program }}</span>
+              <span>{{ app.email }}</span>
+            </div>
+            <span class="admin-badge denied">Nekad</span>
+          </div>
+          <div class="admin-actions">
+            <form method="POST" action="/admin/ta-bort-handledare/{{ app.id }}"
+              onsubmit="return confirm('Ta bort denna ansökan?')">
+              <button type="submit" class="admin-btn delete">Ta bort</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if not applications %}
+      <div class="empty-state">Inga ansökningar finns ännu.</div>
+      {% endif %}
+    </section>
+
+    <!-- STUDENTER -->
+    <section id="studenter" style="margin-top: 60px;">
+      <h1>Alla studenter</h1>
+      <p class="admin-sub">Hantera registrerade användare på plattformen</p>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Namn</th>
+              <th>E-post</th>
+              <th>Program</th>
+              <th>Skola</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in students %}
+            <tr>
+              <td>
+                <div class="admin-table-user">
+                  <div class="admin-avatar sm">{{ student.first_name[0] }}{{ student.last_name[0] }}</div>
+                  <span>{{ student.first_name }} {{ student.last_name }}</span>
+                </div>
+              </td>
+              <td>{{ student.email }}</td>
+              <td>{{ student.program or '—' }}</td>
+              <td>{{ student.school or '—' }}</td>
+              <td>
+                <form method="POST" action="/admin/ta-bort-student/{{ student.id }}"
+                  onsubmit="return confirm('Ta bort {{ student.first_name }}?')">
+                  <button type="submit" class="admin-btn delete sm">Ta bort</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+</body>
+</html>

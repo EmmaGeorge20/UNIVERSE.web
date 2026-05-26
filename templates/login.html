@@ -64,8 +64,16 @@
           </label>
 
           {% if error %}
-          <p class="error">{{ error }}</p>
+          <div class="login-popup-overlay" id="loginPopup">
+            <div class="login-popup">
+              <div class="login-popup-icon">✕</div>
+              <h3>Inloggning misslyckades</h3>
+              <p>{{ error }}</p>
+              <button onclick="document.getElementById('loginPopup').style.display='none'" class="login-popup-btn"> Försök igen </button>
+            </div>
+          </div>
           {% endif %}
+
 
           <button class="btn" type="submit">Logga in</button>
           <div class="form-links">

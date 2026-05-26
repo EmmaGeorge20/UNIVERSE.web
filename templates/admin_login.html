@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — UNI:VERSE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="admin-login-page">
+  <div class="admin-login-card">
+    <div class="admin-login-header">
+      <span class="soft-kicker">UNI:VERSE</span>
+      <h1>Admin</h1>
+      <p>Logga in för att hantera plattformen</p>
+    </div>
+    <form method="POST" action="/admin/login" class="admin-login-form">
+      <label>
+        <span>E-post</span>
+        <input type="email" name="email" placeholder="admin@universe.se" required />
+      </label>
+      <label>
+        <span>Lösenord</span>
+        <input type="password" name="password" placeholder="••••••••" required />
+      </label>
+      {% if error %}
+      <p class="form-error">{{ error }}</p>
+      {% endif %}
+      <button type="submit" class="bli-submit-btn">Logga in</button>
+    </form>
+  </div>
+</main>
+</body>
+</html>

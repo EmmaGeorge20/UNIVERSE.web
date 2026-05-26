@@ -9,7 +9,7 @@
   </div>
 
   <div class="bli-handledare-wrap">
-    <form method="POST" action="{{ url_for('become_tutor') }}" class="bli-handledare-form" enctype="multipart/form-data">
+    <form method="POST" action="/bli-handledare" class="bli-handledare-form" enctype="multipart/form-data">
 
       <div class="bli-field">
         <label for="bio">Om dig</label>
@@ -39,9 +39,9 @@
               <input type="text" id="kursSearch" placeholder="Sök kurs…" autocomplete="off" />
             </div>
             <div class="kurs-options-list" id="kursOptionsList">
-              {% for kurs in courses %}
+              {% for kurs in kurser %}
               <label class="kurs-option" data-name="{{ kurs[1]|lower }} {{ kurs[2]|lower }}">
-                <input type="checkbox" name="courses" value="{{ kurs[0] }}" class="kurs-cb" />
+                <input type="checkbox" name="kurser" value="{{ kurs[0] }}" class="kurs-cb" />
                 <span class="kurs-option-check">
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                     <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -60,17 +60,7 @@
         <div class="kurs-selected-tags" id="kursSelectedTags"></div>
       </div>
 
-      <div class="bli-field">
-        <label for="egen_kurs">Annan kurs (valfritt)</label>
-        <p class="bli-field-hint">Skriv in en kurskod som inte finns i listan ovan</p>
-        <input
-          type="text"
-          id="egen_kurs"
-          name="egen_kurs"
-          placeholder="t.ex. DA999A"
-        />
-      </div>
-
+    
       <div class="bli-field">
         <label>Intyg per kurs</label>
         <p class="bli-field-hint">Ladda upp ett godkänt betyg eller intyg för varje kurs (PDF eller bild)</p>

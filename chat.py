@@ -126,6 +126,12 @@ def chats_page():
         logged_in=True
     )
    
+@socketio.on("join_notification_room")
+def join_notification_room(data):
+    user_id = session.get("user_id")
+    if user_id:
+        join_room(f"notification_{user_id}")
+
 @socketio.on("join_chat")  # starts when frontend (js) sends socketio.emit("join_chat")
 def join_chat(data):
     '''
@@ -197,6 +203,8 @@ def handle_message(data):
         "message": message,
         "sent_at": str(saved_message[1])
     }, to=room)
+
+    emit("new_message_notification", {}, to=f"notification_{receiver_id}")
 
 
 def get_room_name(user1_id, user2_id):
