@@ -86,7 +86,6 @@ def register():
         last_name  = request.form["last_name"]
         email      = request.form["email"]
         school     = request.form["school"]
-        
         phone      = request.form["phone"]
         gender     = request.form.get("gender")
         password   = request.form["password"]
