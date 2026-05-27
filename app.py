@@ -22,6 +22,17 @@ app.register_blueprint(auth)
 app.register_blueprint(profile_bp)
 app.register_blueprint(chat)
 
+def run_migrations():
+    conn = get_connection()
+    if conn:
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE")
+        conn.commit()
+        cur.close()
+        conn.close()
+
+run_migrations()
+
 
 @app.route("/")
 def index():
@@ -46,7 +57,7 @@ def search():
             if query:
                 cur.execute(
                     """
-                    SELECT u.first_name, u.last_name, u.program,
+                    SELECT u.id, u.first_name, u.last_name, u.program,
                            array_agg(c.course_code) AS courses,
                            t.bio
                     FROM tutors t
@@ -55,7 +66,7 @@ def search():
                     JOIN courses c ON c.id = tc.course_id
                     WHERE t.is_active = TRUE
                       AND (c.course_code ILIKE %s OR c.course_name ILIKE %s)
-                    GROUP BY u.first_name, u.last_name, u.program, t.bio
+                    GROUP BY u.id, u.first_name, u.last_name, u.program, t.bio
                     ORDER BY u.last_name ASC
                     """,
                     (f"%{query}%", f"%{query}%"),
@@ -63,7 +74,7 @@ def search():
             else:
                 cur.execute(
                     """
-                    SELECT u.first_name, u.last_name, u.program,
+                    SELECT u.id, u.first_name, u.last_name, u.program,
                            array_agg(c.course_code) AS courses,
                            t.bio
                     FROM tutors t
@@ -71,25 +82,25 @@ def search():
                     JOIN tutor_courses tc ON tc.tutor_id = t.id
                     JOIN courses c ON c.id = tc.course_id
                     WHERE t.is_active = TRUE
-                    GROUP BY u.first_name, u.last_name, u.program, t.bio
+                    GROUP BY u.id, u.first_name, u.last_name, u.program, t.bio
                     ORDER BY u.last_name ASC
                     """
                 )
             rows = cur.fetchall()
             for row in rows:
                 tutors.append({
-                    "first_name":      row[0],
-                    "last_name":       row[1],
-                    "program":         row[2],
-                    "kurser":          row[3],
-                    "bio":             row[4],
+                    "user_id":    row[0],
+                    "first_name": row[1],
+                    "last_name":  row[2],
+                    "program":    row[3],
+                    "kurser":     row[4],
+                    "bio":        row[5],
                 })
             cur.close()
         finally:
             conn.close()
 
     return render_template("search.html", tutors=tutors, query=query)
-
 
 @app.route("/bli-handledare", methods=["GET", "POST"])
 def bli_handledare():
@@ -444,6 +455,7 @@ def profile():
         return redirect(url_for("auth.login"))
 
     user = {}
+    is_tutor = False
 
     conn = get_connection()
     if conn is not None:
@@ -467,11 +479,22 @@ def profile():
                     "program":    row[4],
                     "phone":      row[5],
                 }
+                # Check if approved tutor
+                cur.execute(
+                    """
+                    SELECT id FROM tutors
+                    JOIN users u ON tutors.user_id = u.id
+                    WHERE u.email = %s AND tutors.status = 'approved'
+                    """,
+                    (email,),
+                )
+                is_tutor = cur.fetchone() is not None
+
             cur.close()
         finally:
             conn.close()
 
-    return render_template("profil.html", user=user)
+    return render_template("profil.html", user=user, is_tutor=is_tutor)
 
 @app.route("/notifications/count")
 def notifications_count():

@@ -2,7 +2,7 @@
 Handels all functions relates to the chat 
 '''
 
-from flask import Blueprint, render_template, redirect, session, url_for
+from flask import Blueprint, render_template, redirect, session, url_for, jsonify
 from db import get_connection
 from flask_socketio import emit, join_room, leave_room
 from extensions import socketio
@@ -63,6 +63,12 @@ def chat_page(receiver_id):
 
     cur.execute("SELECT id, course_code, course_name FROM courses")
     courses = cur.fetchall()
+
+    cur.execute("""
+        UPDATE messages SET is_read = TRUE
+        WHERE chat_id = %s AND sender_id != %s
+    """, (chat_id, user_id))
+    conn.commit()
 
     cur.close()
     conn.close()
@@ -316,4 +322,28 @@ def handle_booking_response(data):
         "status": status
     }, to=room)
 
+
+@chat.route("/api/unread_messages_count")
+def unread_messages_count():
+    if "user_id" not in session:
+        return jsonify({"count": 0})
+
+    user_id = session["user_id"]
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM messages m
+        JOIN chats c ON c.id = m.chat_id
+        WHERE (c.user1_id = %s OR c.user2_id = %s)
+          AND m.sender_id != %s
+          AND m.is_read = FALSE
+    """, (user_id, user_id, user_id))
+
+    count = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+
+    return jsonify({"count": count})
 

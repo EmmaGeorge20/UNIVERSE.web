@@ -2018,6 +2018,31 @@ select:focus {
   gap: 10px;
 }
 
+.tutor-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tutor-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-pink), var(--brand-yellow));
+  color: #fff;
+  transition: transform 0.18s, opacity 0.18s;
+}
+
+.tutor-chat-btn:hover {
+  transform: scale(1.08);
+  opacity: 0.9;
+}
+
 .tutor-name {
   font-size: 1.05rem;
   font-weight: 700;

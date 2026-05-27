@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=7">
     {% block head%}{% endblock %}
 </head>
 
@@ -220,28 +220,31 @@
         const chatBadge = document.getElementById('chatBadge');
         const onChatPage = window.location.pathname.startsWith('/chat');
 
-        let unreadCount = onChatPage ? 0 : parseInt(sessionStorage.getItem('unread_count') || '0');
-        if (onChatPage) sessionStorage.setItem('unread_count', '0');
-
-        function updateBadge() {
-            if (unreadCount > 0) {
-                chatBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+        function updateBadge(count) {
+            if (count > 0) {
+                chatBadge.textContent = count > 9 ? '9+' : count;
                 chatBadge.style.display = 'flex';
             } else {
                 chatBadge.style.display = 'none';
             }
         }
-        updateBadge();
+
+        async function fetchUnreadCount() {
+            try {
+                const res = await fetch('/api/unread_messages_count');
+                const data = await res.json();
+                updateBadge(data.count);
+            } catch(e) {}
+        }
+
+        fetchUnreadCount();
+        setInterval(fetchUnreadCount, 30000);
 
         const NOTIF_USER_ID = "{{ session.get('user_id') }}";
         const notifSocket = io();
         notifSocket.emit('join_notification_room', { user_id: NOTIF_USER_ID });
         notifSocket.on('new_message_notification', () => {
-            if (!onChatPage) {
-                unreadCount++;
-                sessionStorage.setItem('unread_count', unreadCount);
-                updateBadge();
-            }
+            if (!onChatPage) fetchUnreadCount();
         });
     </script>
     {% endif %}
