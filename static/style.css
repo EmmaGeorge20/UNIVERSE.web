@@ -1391,7 +1391,7 @@ select:focus {
 }
 
 .register-field-grid .compact {
- grid-column: span 1;
+ grid-column: span 2;
 }
 
 
