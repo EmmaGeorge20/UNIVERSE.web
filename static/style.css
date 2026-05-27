@@ -2941,21 +2941,21 @@ select:focus {
 
   /* Search */
   .search-page {
-    padding: 28px 16px 48px;
+   padding: 28px 16px 48px;
   }
 
   /* Login */
   .login-panel {
-    padding: 32px 20px;
+  padding: 32px 20px;
   }
 
   /* Register */
   .register-shell {
-    padding: 24px 16px;
+  padding: 24px 16px;
   }
 
   .register-form-card {
-    padding: 2rem 1.25rem;
+   padding: 2rem 1.25rem;
   }
 }
 
@@ -3097,4 +3097,116 @@ select:focus {
 
 .login-popup-btn:hover {
   background: var(--brand-pink);
+}
+
+/* =========================================================
+  NOTIFIKATIONER
+  ========================================================= */
+
+.nav-notif-wrap {
+  position: relative;
+}
+
+.nav-notif-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-pink), var(--brand-yellow));
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  position: relative;
+  transition: transform 0.18s;
+}
+
+.nav-notif-btn:hover {
+  transform: scale(1.05);
+}
+
+.nav-notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e53935;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+.nav-notif-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 300px;
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.nav-notif-panel.open {
+  display: block;
+}
+
+.nav-notif-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--stroke);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.nav-notif-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.nav-notif-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.nav-notif-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--stroke);
+  transition: background 0.15s;
+}
+
+.nav-notif-item:last-child {
+  border-bottom: none;
+}
+
+.nav-notif-item:hover {
+  background: var(--accent-soft);
+}
+
+.nav-notif-item.unread {
+  background: var(--accent-soft);
+}
+
+.nav-notif-item p {
+ font-size: 13px;
+ color: var(--text);
+ line-height: 1.5;
+ margin-bottom: 4px;
+}
+
+.nav-notif-item span {
+ font-size: 11px;
+ color: var(--muted);
 }

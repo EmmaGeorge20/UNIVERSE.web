@@ -477,6 +477,74 @@ def profile():
 
     return render_template("profil.html", user=user)
 
+@app.route("/notifications/count")
+def notifications_count():
+    email = session.get("user")
+    if not email:
+        return jsonify({"count": 0})
+
+    count = 0
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+            row = cur.fetchone()
+            if row:
+                cur.execute(
+                    "SELECT COUNT(*) FROM notifications WHERE user_id = %s AND is_read = FALSE",
+                    (row[0],),
+                )
+                count = cur.fetchone()[0]
+            cur.close()
+        finally:
+            conn.close()
+
+    return jsonify({"count": count})
+
+
+@app.route("/notifications")
+def notifications():
+    email = session.get("user")
+    if not email:
+        return jsonify([])
+
+    notifs = []
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+            row = cur.fetchone()
+            if row:
+                user_id = row[0]
+                cur.execute(
+                    """
+                    SELECT id, message, is_read, created_at
+                    FROM notifications
+                    WHERE user_id = %s
+                    ORDER BY created_at DESC
+                    LIMIT 10
+                    """,
+                    (user_id,),
+                )
+                for r in cur.fetchall():
+                    notifs.append({
+                        "id":         r[0],
+                        "message":    r[1],
+                        "is_read":    r[2],
+                        "created_at": r[3].strftime("%d %b %H:%M"),
+                    })
+                cur.execute(
+                    "UPDATE notifications SET is_read = TRUE WHERE user_id = %s",
+                    (user_id,),
+                )
+                conn.commit()
+            cur.close()
+        finally:
+            conn.close()
+
+    return jsonify(notifs)
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
