@@ -11,8 +11,11 @@
 
 
 {% block body %}
-{% if not logged_in %}
+   <main class="chat-page">
+    <aside class="chat-sidebar">
+        <h1>Chattar</h1>
 
+<<<<<<< HEAD
 <main class="register-page">
     <section class="register-section">
         <div class="register-shell">
@@ -31,6 +34,17 @@
 </main>
 
 {% else %}
+=======
+            {% for chat in chats %}
+                <a href="{{ url_for('chat.chat_page', receiver_id=chat[0]) }}" class="chat-preview">
+                   <h3>{{ chat[1] }} {{ chat[2] }}</h3>
+                   <p>{{ chat[3] }}</p>
+                </a>
+            {% endfor %}
+    </aside>
+    <section>
+        {% if no_chats %}
+>>>>>>> d9ccec6596c902d9048f47036b7c806c5472c713
 
 <main class="chat-page">
     <aside class="chat-sidebar">
@@ -95,6 +109,7 @@
             </div>
         {% endif %}
     </section>
+<<<<<<< HEAD
 </main>
 
 {% if not no_chats %}
@@ -108,4 +123,18 @@
 {% endif %}
 
 {% endif %}
+=======
+    
+   {% if not no_chats %}
+        <script>
+            const CURRENT_USER_ID = "{{ session['user_id'] }}";
+            const RECEIVER_ID = "{{ receiver_id }}";
+            const CHAT_ID = "{{ chat_id }}";
+        </script>
+
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    {% endif %}
+   </main>
+>>>>>>> d9ccec6596c902d9048f47036b7c806c5472c713
 {% endblock %}
