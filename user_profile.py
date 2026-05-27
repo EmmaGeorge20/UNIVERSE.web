@@ -94,11 +94,6 @@ def update_about_text(email):
 
 @profile_bp.route("/profile", methods=["GET", "POST"])
 def profile_page():
-    """
-    GET - Fetches the logged in user's information from the database
-          and renders the profile page.
-          Shows a login message if the user is not logged in.
-    """
     email = session.get("user")
     if not email or email == "guest":
         return render_template("profile.html", login_required=True)
@@ -121,6 +116,8 @@ def profile_page():
         "phone": "Ej angivet",
     }
 
+    is_tutor = False
+
     conn = get_connection()
     if conn is not None:
         try:
@@ -135,7 +132,20 @@ def profile_page():
             )
             row = cur.fetchone()
             if row:
-                user = row
+                user = dict(row)
+
+            # Check if approved tutor
+            cur2 = conn.cursor()
+            cur2.execute(
+                """
+                SELECT t.id FROM tutors t
+                JOIN users u ON t.user_id = u.id
+                WHERE u.email = %s AND t.status = 'approved'
+                """,
+                (email,),
+            )
+            is_tutor = cur2.fetchone() is not None
+            cur2.close()
             cur.close()
         finally:
             conn.close()
@@ -143,7 +153,7 @@ def profile_page():
     user["profile_image"] = profile_image_path(email)
     user["about_text"] = session.get(f"profile_about_{email}", "")
 
-    return render_template("profile.html", user=user, login_required=False)
+    return render_template("profile.html", user=user, login_required=False, is_tutor=is_tutor)
 
 @profile_bp.route("/apply-tutor", methods=["GET", "POST"])
 def apply_tutor():

@@ -36,9 +36,6 @@
         {% if t.bio %}
         <p class="tutor-bio">{{ t.bio }}</p>
         {% endif %}
-        <div class="tutor-meta">
-          Betyg: {{ "%.1f"|format(t.rating) }} &nbsp;·&nbsp; {{ t.session_count }} sessioner
-        </div>
       </div>
       {% endfor %}
     </div>

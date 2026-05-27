@@ -48,16 +48,15 @@ def search():
                     """
                     SELECT u.first_name, u.last_name, u.program,
                            array_agg(c.course_code) AS courses,
-                           t.bio, t.rating, t.session_count
+                           t.bio
                     FROM tutors t
                     JOIN users u ON t.user_id = u.id
                     JOIN tutor_courses tc ON tc.tutor_id = t.id
                     JOIN courses c ON c.id = tc.course_id
                     WHERE t.is_active = TRUE
                       AND (c.course_code ILIKE %s OR c.course_name ILIKE %s)
-                    GROUP BY u.first_name, u.last_name, u.program,
-                             t.bio, t.rating, t.session_count
-                    ORDER BY t.rating DESC
+                    GROUP BY u.first_name, u.last_name, u.program, t.bio
+                    ORDER BY u.last_name ASC
                     """,
                     (f"%{query}%", f"%{query}%"),
                 )
@@ -66,15 +65,14 @@ def search():
                     """
                     SELECT u.first_name, u.last_name, u.program,
                            array_agg(c.course_code) AS courses,
-                           t.bio, t.rating, t.session_count
+                           t.bio
                     FROM tutors t
                     JOIN users u ON t.user_id = u.id
                     JOIN tutor_courses tc ON tc.tutor_id = t.id
                     JOIN courses c ON c.id = tc.course_id
                     WHERE t.is_active = TRUE
-                    GROUP BY u.first_name, u.last_name, u.program,
-                             t.bio, t.rating, t.session_count
-                    ORDER BY t.rating DESC
+                    GROUP BY u.first_name, u.last_name, u.program, t.bio
+                    ORDER BY u.last_name ASC
                     """
                 )
             rows = cur.fetchall()
@@ -85,8 +83,6 @@ def search():
                     "program":         row[2],
                     "kurser":          row[3],
                     "bio":             row[4],
-                    "betyg":           row[5],
-                    "antal_sessioner": row[6],
                 })
             cur.close()
         finally:
