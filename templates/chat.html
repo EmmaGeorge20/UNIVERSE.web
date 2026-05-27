@@ -11,33 +11,19 @@
 
 
 {% block body %}
-{% if not logged_in %}
+   <main class="chat-page">
+    <aside class="chat-sidebar">
+        <h1>Chattar</h1>
 
-<main class="register-page">
-
-    <section class="register-section">
-
-        <div class="register-shell">
-
-            <div class="register-form-card">
-
-                <div class="register-form-heading">
-                    <h2>Logga in för att kunna chatta</h2>
-
-                    <p>
-                        Du behöver ett konto för att kunna använda chatten.
-                    </p>
-                </div>
-
-                <div class="chat-login-actions">
-
-                    <a class="search-btn" href="{{ url_for('auth.login') }}">
-                        Logga in
-                    </a>
-
-                    <a class="search-btn" href="{{ url_for('auth.register') }}">
-                        Skapa konto
-                    </a>
+            {% for chat in chats %}
+                <a href="{{ url_for('chat.chat_page', receiver_id=chat[0]) }}" class="chat-preview">
+                   <h3>{{ chat[1] }} {{ chat[2] }}</h3>
+                   <p>{{ chat[3] }}</p>
+                </a>
+            {% endfor %}
+    </aside>
+    <section>
+        {% if no_chats %}
 
             <div class="empty-chat">
                 <h2>Det finns inga tidigare meddelanden.</h2>
@@ -92,11 +78,8 @@
                     <input type="text" placeholder="Meddelande..." name="message" id ="message">
                     <button type="button" name="send" id="send-btn" onclick="sendMessage()">Skicka</button>
                 </div>
-
             </div>
-
-        </div>
-
+        {% endif %}
     </section>
     
    {% if not no_chats %}
@@ -106,63 +89,8 @@
             const CHAT_ID = "{{ chat_id }}";
         </script>
 
-</main>
-
-{% else %}
-   <main class="chat-page">
-        <aside class="chat-sidebar">
-            <h1>Chattar</h1>
-
-                {% for chat in chats %}
-                    <a href="{{ url_for('chat.chat_page', receiver_id=chat[0]) }}" class="chat-preview">
-                    <h3>{{ chat[1] }} {{ chat[2] }}</h3>
-                    <p>{{ chat[3] }}</p>
-                    </a>
-                {% endfor %}
-        </aside>
-        <section>
-            {% if no_chats %}
-
-                <div class="empty-chat">
-                    <h2>Det finns inga tidigare meddelanden.</h2>
-                    <p>Hitta en handledare och börja chatta!</p>
-                </div>
-            {% else %}
-                <div class="message-box">
-                    <h2>{{room}}</h2>
-                    <div class="messages" id="chat">
-                        {% for message in messages %}
-
-                            {% if message[0] == session["user_id"] %}
-                                <div class="message me">
-                                    {{ message[1] }}
-                                </div>
-                            {% else %}
-                                <div class="message other">
-                                    {{ message[1] }}
-                                </div>
-                            {% endif %}
-
-                        {% endfor %}
-                    </div>
-                    <div class="inputs">
-                        <input type="text" placeholder="Meddelande..." name="message" id ="message">
-                        <button type="button" name="send" class="search-btn" id="send-btn" onclick="sendMessage()">Skicka</button>
-                    </div>
-                </div>
-            {% endif %}
-        </section>
-         </main>
-    
-        {% if not no_chats %}
-            <script>
-                const CURRENT_USER_ID = "{{ session['user_id'] }}";
-                const RECEIVER_ID = "{{ receiver_id }}";
-            </script>
-
-            <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-            <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
-        {% endif %}
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
     {% endif %}
-
+   </main>
 {% endblock %}
