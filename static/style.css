@@ -43,6 +43,10 @@ body {
   min-height: 100vh;
 }
 
+body:not(.welcome-page) * {
+    scroll-snap-align: none;
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -87,6 +91,7 @@ main > #welcome > h2{
 footer{
   padding: 10px;
   text-align: center;
+  scroll-snap-align: end;
 }
 
 /* =========================================================
