@@ -1540,13 +1540,13 @@ select:focus,
 
 .register-field-grid {
  display: grid;
- grid-template-columns: repeat(8, minmax(0, 1fr));
+ grid-template-columns: repeat(6, minmax(0, 1fr));
  gap: 18px 14px;
 }
 
 
 .register-field-grid label {
- grid-column: span 4;
+ grid-column: span 3;
  min-width: 0;
  display: grid;
  gap: 8px;
