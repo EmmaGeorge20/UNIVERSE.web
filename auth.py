@@ -90,7 +90,6 @@ def register():
         last_name  = request.form["last_name"]
         email      = request.form["email"]
         school     = request.form["school"]
-        program    = ""
         phone      = request.form["phone"]
         gender     = request.form.get("gender")
         password   = request.form["password"]
@@ -109,9 +108,9 @@ def register():
                         error = "Det finns redan ett konto med den e-postadressen."
                     else:
                         cur.execute("""
-                            INSERT INTO users (first_name, last_name, email, school, program, phone, password)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)
-                        """, (first_name, last_name, email, school, program, phone, password))
+                            INSERT INTO users (first_name, last_name, email, school, phone, password)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (first_name, last_name, email, school, phone, password))
                         conn.commit()
                         session["user"] = email
                         return redirect(url_for("auth.login"))
