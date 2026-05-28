@@ -44,6 +44,13 @@ def chat_page(receiver_id):
     chats = cur.fetchall()
 
     cur.execute("""
+    SELECT first_name, last_name
+    FROM users
+    WHERE id = %s
+    """, (receiver_id,))
+    receiver = cur.fetchone()
+
+    cur.execute("""
         SELECT sender_id, message, sent_at
         FROM messages
         WHERE chat_id = %s
@@ -73,13 +80,11 @@ def chat_page(receiver_id):
     cur.close()
     conn.close()
 
-    room = get_room_name(user_id, receiver_id)
-
     return render_template(
         "chat.html",
         receiver_id=receiver_id,
+        receiver_name=f"{receiver[0]} {receiver[1]}",
         chat_id=chat_id,
-        room=room,
         chats=chats,
         messages=messages,
         no_chats=False, 
