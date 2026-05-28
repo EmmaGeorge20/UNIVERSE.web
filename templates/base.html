@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=7">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=8">
     {% block head%}{% endblock %}
 </head>
 
@@ -21,6 +21,7 @@
             <div class="nav-links">
                 <a href="{{ url_for('home') }}#main-content">Hem</a>
                 <a href="{{ url_for('search') }}">Sök handledare</a>
+                <a href="{{ url_for('marketplace') }}">Marknad</a>
                 <a href="{{ url_for('booking') }}">Bokningar</a>
             </div>
 
@@ -92,6 +93,7 @@
         <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
             <a href="{{ url_for('home') }}#main-content">Hem</a>
             <a href="{{ url_for('search') }}">Sök handledare</a>
+            <a href="{{ url_for('marketplace') }}">Marknad</a>
             <a href="{{ url_for('booking') }}">Bokningar</a>
             {% if session.get("user") %}
             <div class="mobile-menu-divider"></div>

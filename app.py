@@ -5,6 +5,7 @@ It initializes the Flask app and registers all blueprints.
 """
 
 import os
+import time
 
 from flask import Flask, redirect, render_template, request, session, url_for, jsonify
 from auth import auth
@@ -27,6 +28,21 @@ def run_migrations():
     if conn:
         cur = conn.cursor()
         cur.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE")
+        cur.execute("ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS image_filename VARCHAR(200)")
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS marketplace_listings (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                title VARCHAR(200) NOT NULL,
+                description TEXT,
+                price NUMERIC(10,2) DEFAULT 0,
+                category VARCHAR(50) NOT NULL,
+                listing_type VARCHAR(20) NOT NULL,
+                image_filename VARCHAR(200),
+                created_at TIMESTAMP DEFAULT NOW(),
+                is_active BOOLEAN DEFAULT TRUE
+            )
+        """)
         conn.commit()
         cur.close()
         conn.close()
@@ -435,7 +451,147 @@ def help_page():
 
 @app.route("/marketplace")
 def marketplace():
-    return render_template("page.html", title="Marknad")
+    category     = request.args.get("category", "").strip()
+    listing_type = request.args.get("type", "").strip()
+    min_price    = request.args.get("min_price", "").strip()
+    max_price    = request.args.get("max_price", "").strip()
+    q            = request.args.get("q", "").strip()
+
+    listings = []
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            conditions = ["ml.is_active = TRUE"]
+            params = []
+
+            if category:
+                conditions.append("ml.category = %s")
+                params.append(category)
+            if listing_type:
+                conditions.append("ml.listing_type = %s")
+                params.append(listing_type)
+            if min_price:
+                try:
+                    conditions.append("ml.price >= %s")
+                    params.append(float(min_price))
+                except ValueError:
+                    pass
+            if max_price:
+                try:
+                    conditions.append("ml.price <= %s")
+                    params.append(float(max_price))
+                except ValueError:
+                    pass
+            if q:
+                conditions.append("(ml.title ILIKE %s OR ml.description ILIKE %s)")
+                params.extend([f"%{q}%", f"%{q}%"])
+
+            where = " AND ".join(conditions)
+            cur.execute(f"""
+                SELECT ml.id, ml.user_id, ml.title, ml.description, ml.price,
+                       ml.category, ml.listing_type, ml.image_filename,
+                       ml.created_at, u.first_name, u.last_name
+                FROM marketplace_listings ml
+                JOIN users u ON u.id = ml.user_id
+                WHERE {where}
+                ORDER BY ml.created_at DESC
+            """, params)
+
+            for row in cur.fetchall():
+                listings.append({
+                    "id":             row[0],
+                    "user_id":        row[1],
+                    "title":          row[2],
+                    "description":    row[3],
+                    "price":          row[4],
+                    "category":       row[5],
+                    "listing_type":   row[6],
+                    "image_filename": row[7],
+                    "seller_name":    f"{row[9]} {row[10]}",
+                })
+            cur.close()
+        finally:
+            conn.close()
+
+    return render_template("marketplace.html",
+        listings=listings,
+        current_user_id=session.get("user_id"),
+        category=category,
+        listing_type=listing_type,
+        min_price=min_price,
+        max_price=max_price,
+        q=q,
+    )
+
+
+@app.route("/marketplace/ny", methods=["GET", "POST"])
+def marketplace_ny():
+    if not session.get("user_id"):
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        title        = request.form.get("title", "").strip()
+        description  = request.form.get("description", "").strip()
+        price_str    = request.form.get("price", "0").strip()
+        category     = request.form.get("category", "").strip()
+        listing_type = request.form.get("listing_type", "").strip()
+        image        = request.files.get("image")
+
+        try:
+            price = float(price_str)
+        except ValueError:
+            price = 0.0
+
+        image_filename = None
+        if image and image.filename:
+            ext = image.filename.rsplit(".", 1)[-1].lower()
+            if ext in ("jpg", "jpeg", "png"):
+                upload_dir = os.path.join("static", "uploads", "marketplace")
+                os.makedirs(upload_dir, exist_ok=True)
+                image_filename = f"{session['user_id']}_{int(time.time() * 1000)}.{ext}"
+                image.save(os.path.join(upload_dir, image_filename))
+
+        conn = get_connection()
+        if conn is not None:
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT INTO marketplace_listings
+                        (user_id, title, description, price, category, listing_type, image_filename)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (session["user_id"], title, description, price,
+                      category, listing_type, image_filename))
+                conn.commit()
+                cur.close()
+            finally:
+                conn.close()
+
+        return redirect(url_for("marketplace"))
+
+    return render_template("marketplace_ny.html")
+
+
+@app.route("/marketplace/ta-bort/<int:listing_id>", methods=["POST"])
+def marketplace_ta_bort(listing_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("auth.login"))
+
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "DELETE FROM marketplace_listings WHERE id = %s AND user_id = %s",
+                (listing_id, user_id),
+            )
+            conn.commit()
+            cur.close()
+        finally:
+            conn.close()
+
+    return redirect(url_for("marketplace"))
 
 
 @app.route("/news")
