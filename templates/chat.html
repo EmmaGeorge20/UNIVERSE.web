@@ -80,6 +80,13 @@
 
                 <div id="booking-form" style="display:none; padding: 16px; border-top: 1px solid #ddd; background: white;">
                     <h3>Boka handledning</h3>
+                    <label>Kurs:</label>
+                    <select id="booking-course">
+                        {% for course in courses %}
+                        <option value="{{ course[0] }}">{{ course[1] }} – {{ course[2] }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
                     <label>Datum och tid:</label>
                     <input type="datetime-local" id="booking-time">
                     <br><br>

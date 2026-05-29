@@ -68,8 +68,15 @@ def chat_page(receiver_id):
     """, (chat_id,))
     contracts = cur.fetchall()
 
-    cur.execute("SELECT id, course_code, course_name FROM courses")
+    cur.execute("""
+    SELECT c.id, c.course_code, c.course_name
+    FROM courses c
+    JOIN tutor_courses tc ON tc.course_id = c.id
+    JOIN tutors t ON t.id = tc.tutor_id
+    WHERE t.user_id = %s
+""", (receiver_id,))
     courses = cur.fetchall()
+
 
     cur.execute("""
         UPDATE messages SET is_read = TRUE
@@ -284,8 +291,12 @@ def handle_booking(data):
 
     contract_id = cur.fetchone()[0]
 
-    cur.execute("SELECT course_code, course_name FROM courses WHERE id = %s", (course_id,))
-    course = cur.fetchone()
+    course_name = ""
+    if course_id:
+        cur.execute("SELECT course_code, course_name FROM courses WHERE id = %s", (course_id,))
+        course = cur.fetchone()
+        if course:
+            course_name = f"{course[0]} – {course[1]}"
 
     conn.commit()
     cur.close()
@@ -296,6 +307,7 @@ def handle_booking(data):
     emit("receive_booking", {
         "contract_id": contract_id,
         "sender_id": sender_id,
+        "course_name": course_name,
         "meeting_time": meeting_time
     }, to=room)
 

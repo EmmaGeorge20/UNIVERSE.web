@@ -436,7 +436,46 @@ def admin_logout():
 
 @app.route("/booking")
 def booking():
-    return render_template("page.html", title="Bokningar")
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    user_id = session["user_id"]
+    bookings = []
+
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+    SELECT c.id, c.status, c.meeting_time,
+           co.course_code, co.course_name,
+           sender.first_name, sender.last_name,
+           receiver.first_name, receiver.last_name,
+           c.sender_id
+    FROM contracts c
+    LEFT JOIN courses co ON co.id = c.course_id
+    JOIN users sender ON sender.id = c.sender_id
+    JOIN users receiver ON receiver.id = c.receiver_id
+    WHERE (c.sender_id = %s OR c.receiver_id = %s)
+    AND c.status = 'accepted'
+    ORDER BY c.meeting_time ASC
+""", (user_id, user_id))
+
+            for row in cur.fetchall():
+                bookings.append({
+                    "id":            row[0],
+                    "sender_id": row[9],
+                    "status":        row[1],
+                    "meeting_time":  row[2],
+                    "course_code":   row[3],
+                    "course_name":   row[4],
+                    "sender_name":   f"{row[5]} {row[6]}",
+                    "receiver_name": f"{row[7]} {row[8]}",
+                })
+            cur.close()
+        finally:
+            conn.close()
+    return render_template("booking.html", bookings=bookings, user_id=user_id)
 
 
 @app.route("/messages")

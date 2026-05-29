@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block body %}
+
+<main class="search-page">
+    <h1 class="search-heading">Mina bokningar</h1>
+
+    {% if bookings %}
+    <div class="tutor-grid">
+        {% for b in bookings %}
+        <div class="tutor-card">
+            <div class="tutor-card-top">
+                <div>
+                    {% if b.course_code %}
+                    <div class="tutor-name">{{ b.course_code }} – {{ b.course_name }}</div>
+                    {% else %}
+                    <div class="tutor-name">Bokning</div>
+                    {% endif %}
+                    <div class="tutor-program">{{ b.meeting_time.strftime('%d %b %Y, %H:%M') }}</div>
+                </div>
+                <span class="tutor-course-tag">{{ b.status }}</span>
+            </div>
+            <p class="tutor-bio">
+                {% if b.sender_id == user_id %}
+                Bokad med: {{ b.receiver_name }}
+                {% else %}
+                Bokad med: {{ b.sender_name }}
+                {% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        Du har inga bokningar än.
+    </div>
+    {% endif %}
+</main>
+
+{% endblock %}

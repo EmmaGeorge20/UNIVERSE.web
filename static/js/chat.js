@@ -51,6 +51,7 @@ function toggleBookingForm() {
 
 function sendBooking() {
     const meetingTime = document.getElementById("booking-time").value;
+    const courseId = document.getElementById("booking-course").value;
 
     if (!meetingTime) {
         alert("Välj ett datum och tid.");
@@ -60,6 +61,7 @@ function sendBooking() {
     socketio.emit("send_booking", {
         receiver_id: parseInt(RECEIVER_ID),
         chat_id: parseInt(CHAT_ID),
+        course_id: courseId,
         meeting_time: meetingTime
     });
 
@@ -75,7 +77,7 @@ socketio.on("receive_booking", function(data) {
         msg.dataset.id = data.contract_id;  
         msg.innerHTML = `
             <p>Bokningsförfrågan skickad</p>
-
+            <p><strong>Kurs:</strong> ${data.course_name}</p>
             <p><strong>Tid:</strong> ${data.meeting_time}</p>
             <p>Väntar på svar...</p>
         `;
@@ -83,6 +85,7 @@ socketio.on("receive_booking", function(data) {
         msg.classList.add("other");
         msg.innerHTML = `
         <p>Bokningsförfrågan</p>
+        <p><strong>Kurs:</strong> ${data.course_name}</p>
         <p><strong>Tid:</strong> ${data.meeting_time}</p>
         <button class="respond-btn" data-id="${data.contract_id}" data-status="accepted">Acceptera</button>
         <button class="respond-btn" data-id="${data.contract_id}" data-status="rejected">Neka</button>
