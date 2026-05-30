@@ -8,6 +8,13 @@ socketio.emit("join_chat", {
     receiver_id: RECEIVER_ID
 });
 
+function scrollToBottom() {
+    if (chat) {
+        chat.scrollTop = chat.scrollHeight;
+    }
+}
+
+window.addEventListener("load", scrollToBottom);
 const sendMessage = () => {
     const message = messageInput.value.trim();
 
@@ -41,7 +48,7 @@ function addMessage(data) {
 
     chat.appendChild(msg);
 
-    chat.scrollTop = chat.scrollHeight;
+   scrollToBottom();
 }
 
 function toggleBookingForm() {
@@ -93,7 +100,7 @@ socketio.on("receive_booking", function(data) {
 }
 
     chat.appendChild(msg);
-    chat.scrollTop = chat.scrollHeight;
+    scrollToBottom();
 });
 
 function respondBooking(contractId, status) {
@@ -131,7 +138,7 @@ socketio.on("booking_response", function(data) {
          }
     });
 
-    chat.scrollTop = chat.scrollHeight;
+   scrollToBottom();
 });
 
 

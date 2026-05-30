@@ -52,29 +52,32 @@
             <div class="message-box">
                 <h2>{{ receiver_name }}</h2>
                 <div class="messages" id="chat">
-                    {% for message in messages %}
-                        {% if message[0] == session["user_id"] %}
-                            <div class="message me">{{ message[1] }}</div>
-                        {% else %}
-                            <div class="message other">{{ message[1] }}</div>
-                        {% endif %}
-                    {% endfor %}
+                    {% for item in chat_items %}
 
-                    {% for contract in contracts %}
-                    <div class="message booking-card {% if contract[1] == session['user_id'] %}me{% else %}other{% endif %}">
-                        <p><strong>{{ contract[2] }} – {{ contract[3] }}</strong></p>
-                        <p>{{ contract[4] }}</p>
-                        {% if contract[5] == 'pending' and contract[1] != session['user_id'] %}
-                        <button class="respond-btn" data-id="{{ contract[0] }}" data-status="accepted">Acceptera</button>
-                        <button class="respond-btn" data-id="{{ contract[0] }}" data-status="rejected">Neka</button>
-                        {% elif contract[5] == 'pending' %}
-                        <p>Väntar på svar...</p>
-                        {% elif contract[5] == 'accepted' %}
-                        <p>Accepterad</p>
-                        {% elif contract[5] == 'rejected' %}
-                        <p>Nekad</p>
+                        {% if item.type == "message" %}
+                            <div class="message {% if item.sender_id == session['user_id'] %}me{% else %}other{% endif %}">
+                                {{ item.text }}
+                            </div>
                         {% endif %}
-                    </div>
+
+                        {% if item.type == "contract" %}
+                            <div class="message booking-card {% if item.sender_id == session['user_id'] %}me{% else %}other{% endif %}">
+                                <p><strong>{{ item.course_code }} – {{ item.course_name }}</strong></p>
+                                <p>{{ item.meeting_time }}</p>
+
+                                {% if item.status == 'pending' and item.sender_id != session['user_id'] %}
+                                    <button class="respond-btn" data-id="{{ item.id }}" data-status="accepted">Acceptera</button>
+                                    <button class="respond-btn" data-id="{{ item.id }}" data-status="rejected">Neka</button>
+                                {% elif item.status == 'pending' %}
+                                    <p>Väntar på svar...</p>
+                                {% elif item.status == 'accepted' %}
+                                    <p>Accepterad</p>
+                                {% elif item.status == 'rejected' %}
+                                    <p>Nekad</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
                     {% endfor %}
                 </div>
 

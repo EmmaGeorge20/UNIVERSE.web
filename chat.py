@@ -60,12 +60,14 @@ def chat_page(receiver_id):
     messages = cur.fetchall()
 
     cur.execute("""
-                SELECT c.id, c.sender_id, co.course_code, co.course_name, c.meeting_time, c.status
-                FROM contracts c
-                LEFT JOIN courses co ON co.id = c.course_id
-                WHERE c.chat_id = %s
-                ORDER BY c.id ASC
+        SELECT c.id, c.sender_id, co.course_code, co.course_name,
+            c.meeting_time, c.status, c.created_at
+        FROM contracts c
+        LEFT JOIN courses co ON co.id = c.course_id
+        WHERE c.chat_id = %s
+        ORDER BY c.created_at ASC
     """, (chat_id,))
+
     contracts = cur.fetchall()
 
     cur.execute("""
@@ -87,17 +89,40 @@ def chat_page(receiver_id):
     cur.close()
     conn.close()
 
+    chat_items = []
+
+    for message in messages:
+        chat_items.append({
+            "type": "message",
+            "sender_id": message[0],
+            "text": message[1],
+            "time": message[2]
+        })
+
+    for contract in contracts:
+        chat_items.append({
+            "type": "contract",
+            "id": contract[0],
+            "sender_id": contract[1],
+            "course_code": contract[2],
+            "course_name": contract[3],
+            "meeting_time": contract[4],
+            "status": contract[5],
+            "time": contract[6]   # contracts.created_at
+        })
+
+    chat_items.sort(key=lambda item: item["time"])
+
     return render_template(
         "chat.html",
         receiver_id=receiver_id,
         receiver_name=f"{receiver[0]} {receiver[1]}",
         chat_id=chat_id,
         chats=chats,
-        messages=messages,
+        chat_items=chat_items,
         no_chats=False, 
         logged_in=True,
-        courses=courses,
-        contracts=contracts
+        courses=courses
     )
 
 
