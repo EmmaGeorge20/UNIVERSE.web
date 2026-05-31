@@ -12,12 +12,12 @@ auth = Blueprint("auth", __name__)
 def valid_password(password):
     """
     Validates that the password meets the requirements:
-    at least 8 characters, one letter and one digit.
+    at least 8 characters, one cpaital letter and one digit.
     Returns True if valid, False otherwise.
     """
     if len(password) < 8:
         return False
-    if not any(c.isalpha() for c in password):
+    if not any(c.isupper() for c in password):
         return False
     if not any(c.isdigit() for c in password):
         return False
@@ -95,7 +95,7 @@ def register():
         password   = request.form["password"]
 
         if not valid_password(password):
-            error = "Lösenordet måste vara minst 8 tecken, innehålla minst en bokstav och en siffra."
+            error = "Lösenordet måste vara minst 8 tecken, innehålla minst en stor bokstav och en siffra."
         else:
             conn = get_connection()
             if conn is None:
