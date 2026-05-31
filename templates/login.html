@@ -21,6 +21,12 @@
           <h1>Logga in</h1>
         </div>
 
+        {% if request.args.get('registered') %}
+        <div class="form-success">
+          Kontot är skapat. Du kan logga in nu.
+        </div>
+        {% endif %}
+
         <form class="role-form student-login-form" method="POST" action="{{ url_for('auth.login') }}">
           <fieldset class="account-type-picker">
             <legend>Kontotyp</legend>
