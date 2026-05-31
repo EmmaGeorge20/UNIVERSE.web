@@ -71,12 +71,12 @@ def chat_page(receiver_id):
     contracts = cur.fetchall()
 
     cur.execute("""
-    SELECT c.id, c.course_code, c.course_name
-    FROM courses c
-    JOIN tutor_courses tc ON tc.course_id = c.id
-    JOIN tutors t ON t.id = tc.tutor_id
-    WHERE t.user_id = %s
-""", (receiver_id,))
+        SELECT c.id, c.course_code, c.course_name
+        FROM courses c
+        JOIN tutor_courses tc ON tc.course_id = c.id
+        JOIN tutors t ON t.id = tc.tutor_id
+        WHERE t.user_id = %s OR t.user_id = %s
+    """, (receiver_id, user_id))
     courses = cur.fetchall()
 
 
