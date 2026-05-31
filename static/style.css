@@ -501,6 +501,20 @@ main.chat-page{
     color: #222;
 }
 
+/* Booking page */
+.booking-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 24px;
+}
+
+.booking-section h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: #222;
+}
+
 
 
 /* =========================================================

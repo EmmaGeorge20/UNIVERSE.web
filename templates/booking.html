@@ -4,9 +4,13 @@
 <main class="search-page">
     <h1 class="search-heading">Mina bokningar</h1>
 
-    {% if bookings %}
+
+    <div class="booking-sections">
+        <div class="booking-section">
+    <h2>Kommande</h2>
+    {% if upcoming %}
     <div class="tutor-grid">
-        {% for b in bookings %}
+        {% for b in upcoming %}
         <div class="tutor-card">
             <div class="tutor-card-top">
                 <div>
@@ -30,10 +34,41 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="empty-state">
-        Du har inga bokningar än.
-    </div>
+    <p>Inga kommande bokningar.</p>
     {% endif %}
+</div>
+
+<div class="booking-section">
+    <h2>Genomförda</h2>
+    {% if past %}
+    <div class="tutor-grid">
+        {% for b in past %}
+        <div class="tutor-card">
+            <div class="tutor-card-top">
+                <div>
+                    {% if b.course_code %}
+                    <div class="tutor-name">{{ b.course_code }} – {{ b.course_name }}</div>
+                    {% else %}
+                    <div class="tutor-name">Bokning</div>
+                    {% endif %}
+                    <div class="tutor-program">{{ b.meeting_time.strftime('%d %b %Y, %H:%M') }}</div>
+                </div>
+            </div>
+            <p class="tutor-bio">
+                {% if b.sender_id == user_id %}
+                    Bokad med: {{ b.receiver_name }}
+                {% else %}
+                    Bokad med: {{ b.sender_name }}
+                {% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p>Inga genomförda bokningar.</p>
+    {% endif %}
+   </div>
+</div>
+
 </main>
 
 {% endblock %}
