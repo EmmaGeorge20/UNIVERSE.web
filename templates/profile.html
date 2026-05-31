@@ -40,21 +40,19 @@
             {% else %}
               <span>{{ (user.first_name or "U")[0] }}</span>
             {% endif %}
+            <span class="profile-avatar-upload-text">Ladda upp bild</span>
           </label>
-          <input id="profile-image-input" type="file" name="profile_image" accept="image/*">
+          <input id="profile-image-input" type="file" name="profile_image" accept="image/*" onchange="this.form.submit()">
         </form>
         <div class="profile-meta">
-          <span class="profile-badge {% if is_tutor %}tutor{% endif %}">
-            {% if is_tutor %}✓ Verifierad handledare{% else %}Student{% endif %}
-          </span>
-          <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
-          {% if user.program or user.school %}
-          <p class="profile-bio">
-            {% if user.program %}{{ user.program }}{% endif %}
-            {% if user.program and user.school %} vid {% endif %}
-            {% if user.school %}{{ user.school }}{% endif %}
-          </p>
+          {% if is_tutor %}
+          <span class="profile-badge tutor">✓ Verifierad handledare</span>
           {% endif %}
+          <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
+          <p class="profile-student-info">
+            {% if user.program %}{{ user.program }} student{% else %}Student{% endif %}
+            {% if user.school %} vid {{ user.school }}{% endif %}
+          </p>
         </div>
       </div>
     </div>

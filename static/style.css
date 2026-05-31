@@ -1442,6 +1442,18 @@ select:focus {
  line-height: 1.5;
 }
 
+.form-success {
+ margin: 0 0 1rem;
+ padding: 12px 14px;
+ border: 1px solid rgba(46, 125, 50, 0.22);
+ border-radius: 14px;
+ background: rgba(232, 245, 233, 0.9);
+ color: #1b5e20;
+ font-size: 14px;
+ font-weight: 700;
+ line-height: 1.5;
+}
+
 
 .register-actions {
  display: flex;
@@ -1622,26 +1634,43 @@ select:focus {
 }
 
 .profile-avatar {
-  width: 94px;
-  height: 94px;
+  width: 142px;
+  height: 142px;
   border-radius: 1.4rem;
   background: linear-gradient(135deg, #e8a87c, #c05c7e);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
   font-family: 'Playfair Display', serif;
-  font-size: 2.45rem;
+  font-size: 3.4rem;
   font-weight: 700;
   color: #fff;
   cursor: pointer;
   overflow: hidden;
   box-shadow: 0 14px 32px rgba(23, 18, 16, 0.22);
+  position: relative;
 }
 
 .profile-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.profile-avatar-upload-text {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.65rem;
+  left: 0.5rem;
+  color: rgba(255,255,255,0.9);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
 }
 
 .profile-avatar-form input[type="file"] {
@@ -1661,6 +1690,13 @@ select:focus {
   color: rgba(255,255,255,0.78);
   font-size: 0.9rem;
   margin: 0;
+}
+
+.profile-student-info {
+  color: rgba(255,255,255,0.88);
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
 }
 
 .profile-body {
@@ -3070,9 +3106,9 @@ select:focus {
   }
 
   .profile-avatar {
-    width: 72px;
-    height: 72px;
-    font-size: 1.8rem;
+    width: 112px;
+    height: 112px;
+    font-size: 2.55rem;
   }
 
   .profile-card {

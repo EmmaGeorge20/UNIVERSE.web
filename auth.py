@@ -112,8 +112,7 @@ def register():
                             VALUES (%s, %s, %s, %s, %s, %s)
                         """, (first_name, last_name, email, school, phone, password))
                         conn.commit()
-                        session["user"] = email
-                        return redirect(url_for("auth.login"))
+                        return redirect(url_for("auth.login", registered="1"))
                     cur.close()
                     conn.close()
                 except Exception as e:
