@@ -76,6 +76,29 @@
         </div>
         <p class="profile-about-text">{{ user.about_text }}</p>
       </div>
+      {% if is_tutor and tutor_courses %}
+      <!-- Handledarens kurser -->
+      <div class="profile-card">
+        <div class="profile-card-heading">
+          <h2>Mina handledarekurser</h2>
+          <a href="{{ url_for('bli_handledare') }}" class="profile-add-courses-link">+ Lägg till kurser</a>
+        </div>
+        <div class="profile-courses-list">
+          {% for code, name in tutor_courses %}
+          <span class="profile-course-tag">{{ code }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% elif is_tutor %}
+      <div class="profile-card">
+        <div class="profile-card-heading">
+          <h2>Mina handledarekurser</h2>
+          <a href="{{ url_for('bli_handledare') }}" class="profile-add-courses-link">+ Lägg till kurser</a>
+        </div>
+        <p class="profile-empty-text">Inga kurser tillagda än.</p>
+      </div>
+      {% endif %}
+
       <!-- Kontaktuppgifter -->
       <div class="profile-card">
         <div class="profile-card-heading">

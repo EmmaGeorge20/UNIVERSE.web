@@ -124,101 +124,131 @@ def bli_handledare():
     if not email:
         return redirect(url_for("auth.login"))
 
+    # Fetch all courses and check if user is already an approved tutor
     kurser = []
+    existing_tutor = None
+    existing_courses = []
     conn = get_connection()
     if conn is not None:
         try:
             cur = conn.cursor()
             cur.execute("SELECT id, course_code, course_name FROM courses ORDER BY course_code")
             kurser = cur.fetchall()
+
+            cur.execute("SELECT t.id, t.status FROM tutors t JOIN users u ON u.id = t.user_id WHERE u.email = %s", (email,))
+            row = cur.fetchone()
+            if row:
+                existing_tutor = {"id": row[0], "status": row[1]}
+                cur.execute("""
+                    SELECT c.id FROM tutor_courses tc
+                    JOIN courses c ON c.id = tc.course_id
+                    WHERE tc.tutor_id = %s
+                """, (row[0],))
+                existing_courses = [r[0] for r in cur.fetchall()]
             cur.close()
         finally:
             conn.close()
 
     if request.method == "POST":
-        bio = request.form.get("bio", "").strip()
         valda_kurser = request.form.getlist("kurser")
         egen_kurs = request.form.get("egen_kurs", "").strip()
-        filer = request.files.getlist("intyg")
-
-        upload_folder = os.path.join("static", "uploads")
-        os.makedirs(upload_folder, exist_ok=True)
 
         conn = get_connection()
         if conn is not None:
             try:
                 cur = conn.cursor()
-
                 cur.execute("SELECT id FROM users WHERE email = %s", (email,))
                 row = cur.fetchone()
                 if not row:
                     return redirect(url_for("home"))
                 user_id = row[0]
 
-                cur.execute("SELECT id FROM tutors WHERE user_id = %s", (user_id,))
-                if cur.fetchone():
-                    return redirect(url_for("search"))
+                if existing_tutor and existing_tutor["status"] == "approved":
+                    # Existing approved tutor — add new courses directly
+                    tutor_id = existing_tutor["id"]
+                    upload_folder = os.path.join("static", "uploads")
+                    os.makedirs(upload_folder, exist_ok=True)
 
-                cur.execute(
-                    """
-                    INSERT INTO tutors (user_id, bio, rating, session_count, is_active, status)
-                    VALUES (%s, %s, 0.0, 0, FALSE, 'pending')
-                    RETURNING id
-                    """,
-                    (user_id, bio),
-                )
-                tutor_id = cur.fetchone()[0]
-
-                for kurs_id in valda_kurser:
-                    cur.execute(
-                        """
-                        INSERT INTO tutor_courses (tutor_id, course_id)
-                        VALUES (%s, %s)
-                        ON CONFLICT DO NOTHING
-                        """,
-                        (tutor_id, int(kurs_id)),
-                    )
-
-                if egen_kurs:
-                    cur.execute(
-                        """
-                        INSERT INTO courses (course_code, course_name)
-                        VALUES (%s, %s)
-                        ON CONFLICT (course_code) DO NOTHING
-                        RETURNING id
-                        """,
-                        (egen_kurs.upper(), egen_kurs.upper()),
-                    )
-                    result = cur.fetchone()
-                    if not result:
+                    for kurs_id in valda_kurser:
                         cur.execute(
-                            "SELECT id FROM courses WHERE course_code = %s",
-                            (egen_kurs.upper(),),
+                            "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                            (tutor_id, int(kurs_id)),
+                        )
+
+                    if egen_kurs:
+                        cur.execute(
+                            "INSERT INTO courses (course_code, course_name) VALUES (%s, %s) ON CONFLICT (course_code) DO NOTHING RETURNING id",
+                            (egen_kurs.upper(), egen_kurs.upper()),
                         )
                         result = cur.fetchone()
-                    if result:
+                        if not result:
+                            cur.execute("SELECT id FROM courses WHERE course_code = %s", (egen_kurs.upper(),))
+                            result = cur.fetchone()
+                        if result:
+                            cur.execute(
+                                "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                                (tutor_id, result[0]),
+                            )
+
+                    filer = request.files.getlist("intyg")
+                    for fil in filer:
+                        if fil and fil.filename:
+                            fil.save(os.path.join(upload_folder, f"{tutor_id}_{fil.filename}"))
+
+                    conn.commit()
+                    cur.close()
+                    return redirect(url_for("search"))
+
+                else:
+                    # New tutor application
+                    cur.execute("SELECT id FROM tutors WHERE user_id = %s", (user_id,))
+                    if cur.fetchone():
+                        return redirect(url_for("search"))
+
+                    bio = request.form.get("bio", "").strip()
+                    filer = request.files.getlist("intyg")
+                    upload_folder = os.path.join("static", "uploads")
+                    os.makedirs(upload_folder, exist_ok=True)
+
+                    cur.execute(
+                        "INSERT INTO tutors (user_id, bio, rating, session_count, is_active, status) VALUES (%s, %s, 0.0, 0, FALSE, 'pending') RETURNING id",
+                        (user_id, bio),
+                    )
+                    tutor_id = cur.fetchone()[0]
+
+                    for kurs_id in valda_kurser:
                         cur.execute(
-                            """
-                            INSERT INTO tutor_courses (tutor_id, course_id)
-                            VALUES (%s, %s)
-                            ON CONFLICT DO NOTHING
-                            """,
-                            (tutor_id, result[0]),
+                            "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                            (tutor_id, int(kurs_id)),
                         )
 
-                for fil in filer:
-                    if fil and fil.filename:
-                        filename = f"{tutor_id}_{fil.filename}"
-                        fil.save(os.path.join(upload_folder, filename))
+                    if egen_kurs:
+                        cur.execute(
+                            "INSERT INTO courses (course_code, course_name) VALUES (%s, %s) ON CONFLICT (course_code) DO NOTHING RETURNING id",
+                            (egen_kurs.upper(), egen_kurs.upper()),
+                        )
+                        result = cur.fetchone()
+                        if not result:
+                            cur.execute("SELECT id FROM courses WHERE course_code = %s", (egen_kurs.upper(),))
+                            result = cur.fetchone()
+                        if result:
+                            cur.execute(
+                                "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                                (tutor_id, result[0]),
+                            )
 
-                conn.commit()
-                cur.close()
+                    for fil in filer:
+                        if fil and fil.filename:
+                            fil.save(os.path.join(upload_folder, f"{tutor_id}_{fil.filename}"))
+
+                    conn.commit()
+                    cur.close()
+                    return redirect(url_for("search"))
+
             finally:
                 conn.close()
 
-        return redirect(url_for("search"))
-
-    return render_template("become_tutor.html", kurser=kurser)
+    return render_template("become_tutor.html", kurser=kurser, existing_tutor=existing_tutor, existing_courses=existing_courses)
 
 
 def send_notification(user_id, message):

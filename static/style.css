@@ -3356,6 +3356,33 @@ select:focus {
   text-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
+.profile-courses-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.profile-course-tag {
+  background: var(--accent-soft);
+  color: var(--brand-pink);
+  border: 1px solid rgba(208,93,110,0.2);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profile-add-courses-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand-pink);
+  text-decoration: none;
+}
+.profile-add-courses-link:hover {
+  text-decoration: underline;
+}
+
 /* =========================================================
    MARKNADSPLATS
    ========================================================= */

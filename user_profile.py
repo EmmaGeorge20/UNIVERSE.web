@@ -117,6 +117,7 @@ def profile_page():
     }
 
     is_tutor = False
+    tutor_courses = []
 
     conn = get_connection()
     if conn is not None:
@@ -134,7 +135,7 @@ def profile_page():
             if row:
                 user = dict(row)
 
-            # Check if approved tutor
+            # Check if approved tutor and fetch courses
             cur2 = conn.cursor()
             cur2.execute(
                 """
@@ -144,7 +145,21 @@ def profile_page():
                 """,
                 (email,),
             )
-            is_tutor = cur2.fetchone() is not None
+            tutor_row = cur2.fetchone()
+            is_tutor = tutor_row is not None
+            tutor_courses = []
+            if tutor_row:
+                cur2.execute(
+                    """
+                    SELECT c.course_code, c.course_name
+                    FROM tutor_courses tc
+                    JOIN courses c ON c.id = tc.course_id
+                    WHERE tc.tutor_id = %s
+                    ORDER BY c.course_code
+                    """,
+                    (tutor_row[0],),
+                )
+                tutor_courses = cur2.fetchall()
             cur2.close()
             cur.close()
         finally:
@@ -153,7 +168,7 @@ def profile_page():
     user["profile_image"] = profile_image_path(email)
     user["about_text"] = session.get(f"profile_about_{email}", "")
 
-    return render_template("profile.html", user=user, login_required=False, is_tutor=is_tutor)
+    return render_template("profile.html", user=user, login_required=False, is_tutor=is_tutor, tutor_courses=tutor_courses)
 
 @profile_bp.route("/apply-tutor", methods=["GET", "POST"])
 def apply_tutor():
