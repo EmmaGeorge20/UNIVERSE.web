@@ -22,6 +22,7 @@
                 <a href="{{ url_for('home') }}#main-content">Hem</a>
                 <a href="{{ url_for('search') }}">Sök handledare</a>
                 <a href="{{ url_for('marketplace') }}">Marknad</a>
+                <a href="{{ url_for('announcements') }}">Anslagstavla</a>
                 <a href="{{ url_for('booking') }}">Bokningar</a>
             </div>
 
@@ -94,6 +95,7 @@
             <a href="{{ url_for('home') }}#main-content">Hem</a>
             <a href="{{ url_for('search') }}">Sök handledare</a>
             <a href="{{ url_for('marketplace') }}">Marknad</a>
+            <a href="{{ url_for('announcements') }}">Anslagstavla</a>
             <a href="{{ url_for('booking') }}">Bokningar</a>
             {% if session.get("user") %}
             <div class="mobile-menu-divider"></div>

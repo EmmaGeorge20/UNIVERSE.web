@@ -3,6 +3,81 @@
 
 <main class="search-main">
 
+{% if existing_tutor and existing_tutor.status == 'approved' %}
+
+  <div class="search-hero">
+    <h1>Lägg till fler kurser</h1>
+    <p class="search-sub">Du är redan en verifierad handledare. Välj nya kurser du vill handleda i — de läggs till direkt på din profil.</p>
+  </div>
+
+  <div class="bli-handledare-wrap">
+    <form method="POST" action="/bli-handledare" class="bli-handledare-form" enctype="multipart/form-data">
+
+      <div class="bli-field">
+        <label>Välj kurser att lägga till</label>
+        <p class="bli-field-hint">Välj kurser du inte redan handleder i</p>
+
+        <div class="kurs-dropdown-wrap" id="kursDropdownWrap">
+          <div class="kurs-dropdown-trigger" id="kursDropdownTrigger">
+            <span id="kursDropdownLabel">Välj kurser…</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="kurs-dropdown-panel" id="kursDropdownPanel">
+            <div class="kurs-search-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="kursSearch" placeholder="Sök kurs…" autocomplete="off" />
+            </div>
+            <div class="kurs-options-list" id="kursOptionsList">
+              {% for kurs in kurser %}
+              {% if kurs[0] not in existing_courses %}
+              <label class="kurs-option" data-name="{{ kurs[1]|lower }} {{ kurs[2]|lower }}">
+                <input type="checkbox" name="kurser" value="{{ kurs[0] }}" class="kurs-cb" />
+                <span class="kurs-option-check">
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="kurs-option-text">
+                  <strong>{{ kurs[1] }}</strong>
+                  <small>{{ kurs[2] }}</small>
+                </span>
+              </label>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="kurs-selected-tags" id="kursSelectedTags"></div>
+      </div>
+
+      <div class="bli-field">
+        <label for="intyg">Intyg (valfritt)</label>
+        <p class="bli-field-hint">Ladda upp betyg eller intyg för de nya kurserna om du vill</p>
+        <div class="bli-upload-area" id="uploadArea">
+          <input type="file" name="intyg" id="intyg" multiple accept=".pdf,.jpg,.jpeg,.png" class="bli-file-input" />
+          <div class="bli-upload-inner">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p>Dra och släpp filer här eller <span>klicka för att välja</span></p>
+            <small>PDF, JPG eller PNG</small>
+          </div>
+          <div class="bli-file-list" id="fileList"></div>
+        </div>
+      </div>
+
+      <button type="submit" class="bli-submit-btn">Lägg till kurser</button>
+
+    </form>
+  </div>
+
+{% elif existing_tutor and existing_tutor.status == 'pending' %}
+
+  <div class="search-hero">
+    <h1>Ansökan skickad</h1>
+    <p class="search-sub">Din ansökan granskas av våra administratörer. Du får en notifikation när den är godkänd.</p>
+  </div>
+
+{% else %}
+
   <div class="search-hero">
     <h1>Ansökan för att bli handledare</h1>
     <p class="search-sub">Fyll i formuläret nedan så granskas din ansökan av våra administratörer innan du godkänns.</p>
@@ -14,13 +89,7 @@
       <div class="bli-field">
         <label for="bio">Om dig</label>
         <p class="bli-field-hint">Berätta varför du vill bli handledare och vad du kan bidra med</p>
-        <textarea
-          id="bio"
-          name="bio"
-          rows="5"
-          placeholder="Jag har läst kursen och vill hjälpa andra studenter att förstå materialet…"
-          required
-        ></textarea>
+        <textarea id="bio" name="bio" rows="5" placeholder="Jag har läst kursen och vill hjälpa andra studenter att förstå materialet…" required></textarea>
       </div>
 
       <div class="bli-field">
@@ -32,7 +101,6 @@
             <span id="kursDropdownLabel">Välj kurser…</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-
           <div class="kurs-dropdown-panel" id="kursDropdownPanel">
             <div class="kurs-search-wrap">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -56,23 +124,14 @@
             </div>
           </div>
         </div>
-
         <div class="kurs-selected-tags" id="kursSelectedTags"></div>
       </div>
 
-    
       <div class="bli-field">
         <label>Intyg per kurs</label>
         <p class="bli-field-hint">Ladda upp ett godkänt betyg eller intyg för varje kurs (PDF eller bild)</p>
         <div class="bli-upload-area" id="uploadArea">
-          <input
-            type="file"
-            name="intyg"
-            id="intyg"
-            multiple
-            accept=".pdf,.jpg,.jpeg,.png"
-            class="bli-file-input"
-          />
+          <input type="file" name="intyg" id="intyg" multiple accept=".pdf,.jpg,.jpeg,.png" class="bli-file-input" />
           <div class="bli-upload-inner">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <p>Dra och släpp filer här eller <span>klicka för att välja</span></p>
@@ -87,43 +146,40 @@
     </form>
   </div>
 
+{% endif %}
+
 </main>
 
 <script>
-  // Dropdown toggle
   const trigger = document.getElementById('kursDropdownTrigger');
   const panel = document.getElementById('kursDropdownPanel');
   const wrap = document.getElementById('kursDropdownWrap');
   const label = document.getElementById('kursDropdownLabel');
   const tagsContainer = document.getElementById('kursSelectedTags');
   const searchInput = document.getElementById('kursSearch');
-  const options = document.querySelectorAll('.kurs-option');
 
-  trigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    wrap.classList.toggle('open');
-    if (wrap.classList.contains('open')) searchInput.focus();
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!wrap.contains(e.target)) wrap.classList.remove('open');
-  });
-
-  // Search filter
-  searchInput.addEventListener('input', () => {
-    const q = searchInput.value.toLowerCase();
-    options.forEach(opt => {
-      opt.style.display = opt.dataset.name.includes(q) ? '' : 'none';
+  if (trigger) {
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      wrap.classList.toggle('open');
+      if (wrap.classList.contains('open')) searchInput.focus();
     });
-  });
-
-  // Checkbox change → update tags and label
-  document.querySelectorAll('.kurs-cb').forEach(cb => {
-    cb.addEventListener('change', () => {
-      cb.closest('.kurs-option').classList.toggle('selected', cb.checked);
-      updateTags();
+    document.addEventListener('click', (e) => {
+      if (!wrap.contains(e.target)) wrap.classList.remove('open');
     });
-  });
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase();
+      document.querySelectorAll('.kurs-option').forEach(opt => {
+        opt.style.display = opt.dataset.name.includes(q) ? '' : 'none';
+      });
+    });
+    document.querySelectorAll('.kurs-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        cb.closest('.kurs-option').classList.toggle('selected', cb.checked);
+        updateTags();
+      });
+    });
+  }
 
   function updateTags() {
     const checked = document.querySelectorAll('.kurs-cb:checked');
@@ -142,27 +198,24 @@
       tagsContainer.appendChild(tag);
     });
     const count = checked.length;
-    label.textContent = count === 0 ? 'Välj kurser…' : `${count} kurs${count > 1 ? 'er' : ''} valda`;
+    if (label) label.textContent = count === 0 ? 'Välj kurser…' : `${count} kurs${count > 1 ? 'er' : ''} valda`;
   }
 
-  // File upload
   const fileInput = document.getElementById('intyg');
   const fileList = document.getElementById('fileList');
   const uploadArea = document.getElementById('uploadArea');
 
-  fileInput.addEventListener('change', updateFileList);
-
-  uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('drag-over');
-  });
-  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-  uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('drag-over');
-    fileInput.files = e.dataTransfer.files;
-    updateFileList();
-  });
+  if (fileInput) {
+    fileInput.addEventListener('change', updateFileList);
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('drag-over');
+      fileInput.files = e.dataTransfer.files;
+      updateFileList();
+    });
+  }
 
   function updateFileList() {
     fileList.innerHTML = '';

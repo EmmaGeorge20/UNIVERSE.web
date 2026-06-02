@@ -29,6 +29,21 @@ def run_migrations():
         cur = conn.cursor()
         cur.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE")
         cur.execute("ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS image_filename VARCHAR(200)")
+        cur.execute("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS image_filename VARCHAR(200)")
+        cur.execute("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS external_link VARCHAR(500)")
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS announcements (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                title VARCHAR(200) NOT NULL,
+                description TEXT NOT NULL,
+                category VARCHAR(50) NOT NULL,
+                image_filename VARCHAR(200),
+                external_link VARCHAR(500),
+                created_at TIMESTAMP DEFAULT NOW(),
+                is_active BOOLEAN DEFAULT TRUE
+            )
+        """)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS marketplace_listings (
                 id SERIAL PRIMARY KEY,
@@ -124,101 +139,131 @@ def bli_handledare():
     if not email:
         return redirect(url_for("auth.login"))
 
+    # Fetch all courses and check if user is already an approved tutor
     kurser = []
+    existing_tutor = None
+    existing_courses = []
     conn = get_connection()
     if conn is not None:
         try:
             cur = conn.cursor()
             cur.execute("SELECT id, course_code, course_name FROM courses ORDER BY course_code")
             kurser = cur.fetchall()
+
+            cur.execute("SELECT t.id, t.status FROM tutors t JOIN users u ON u.id = t.user_id WHERE u.email = %s", (email,))
+            row = cur.fetchone()
+            if row:
+                existing_tutor = {"id": row[0], "status": row[1]}
+                cur.execute("""
+                    SELECT c.id FROM tutor_courses tc
+                    JOIN courses c ON c.id = tc.course_id
+                    WHERE tc.tutor_id = %s
+                """, (row[0],))
+                existing_courses = [r[0] for r in cur.fetchall()]
             cur.close()
         finally:
             conn.close()
 
     if request.method == "POST":
-        bio = request.form.get("bio", "").strip()
         valda_kurser = request.form.getlist("kurser")
         egen_kurs = request.form.get("egen_kurs", "").strip()
-        filer = request.files.getlist("intyg")
-
-        upload_folder = os.path.join("static", "uploads")
-        os.makedirs(upload_folder, exist_ok=True)
 
         conn = get_connection()
         if conn is not None:
             try:
                 cur = conn.cursor()
-
                 cur.execute("SELECT id FROM users WHERE email = %s", (email,))
                 row = cur.fetchone()
                 if not row:
                     return redirect(url_for("home"))
                 user_id = row[0]
 
-                cur.execute("SELECT id FROM tutors WHERE user_id = %s", (user_id,))
-                if cur.fetchone():
-                    return redirect(url_for("search"))
+                if existing_tutor and existing_tutor["status"] == "approved":
+                    # Existing approved tutor — add new courses directly
+                    tutor_id = existing_tutor["id"]
+                    upload_folder = os.path.join("static", "uploads")
+                    os.makedirs(upload_folder, exist_ok=True)
 
-                cur.execute(
-                    """
-                    INSERT INTO tutors (user_id, bio, rating, session_count, is_active, status)
-                    VALUES (%s, %s, 0.0, 0, FALSE, 'pending')
-                    RETURNING id
-                    """,
-                    (user_id, bio),
-                )
-                tutor_id = cur.fetchone()[0]
-
-                for kurs_id in valda_kurser:
-                    cur.execute(
-                        """
-                        INSERT INTO tutor_courses (tutor_id, course_id)
-                        VALUES (%s, %s)
-                        ON CONFLICT DO NOTHING
-                        """,
-                        (tutor_id, int(kurs_id)),
-                    )
-
-                if egen_kurs:
-                    cur.execute(
-                        """
-                        INSERT INTO courses (course_code, course_name)
-                        VALUES (%s, %s)
-                        ON CONFLICT (course_code) DO NOTHING
-                        RETURNING id
-                        """,
-                        (egen_kurs.upper(), egen_kurs.upper()),
-                    )
-                    result = cur.fetchone()
-                    if not result:
+                    for kurs_id in valda_kurser:
                         cur.execute(
-                            "SELECT id FROM courses WHERE course_code = %s",
-                            (egen_kurs.upper(),),
+                            "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                            (tutor_id, int(kurs_id)),
+                        )
+
+                    if egen_kurs:
+                        cur.execute(
+                            "INSERT INTO courses (course_code, course_name) VALUES (%s, %s) ON CONFLICT (course_code) DO NOTHING RETURNING id",
+                            (egen_kurs.upper(), egen_kurs.upper()),
                         )
                         result = cur.fetchone()
-                    if result:
+                        if not result:
+                            cur.execute("SELECT id FROM courses WHERE course_code = %s", (egen_kurs.upper(),))
+                            result = cur.fetchone()
+                        if result:
+                            cur.execute(
+                                "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                                (tutor_id, result[0]),
+                            )
+
+                    filer = request.files.getlist("intyg")
+                    for fil in filer:
+                        if fil and fil.filename:
+                            fil.save(os.path.join(upload_folder, f"{tutor_id}_{fil.filename}"))
+
+                    conn.commit()
+                    cur.close()
+                    return redirect(url_for("search"))
+
+                else:
+                    # New tutor application
+                    cur.execute("SELECT id FROM tutors WHERE user_id = %s", (user_id,))
+                    if cur.fetchone():
+                        return redirect(url_for("search"))
+
+                    bio = request.form.get("bio", "").strip()
+                    filer = request.files.getlist("intyg")
+                    upload_folder = os.path.join("static", "uploads")
+                    os.makedirs(upload_folder, exist_ok=True)
+
+                    cur.execute(
+                        "INSERT INTO tutors (user_id, bio, rating, session_count, is_active, status) VALUES (%s, %s, 0.0, 0, FALSE, 'pending') RETURNING id",
+                        (user_id, bio),
+                    )
+                    tutor_id = cur.fetchone()[0]
+
+                    for kurs_id in valda_kurser:
                         cur.execute(
-                            """
-                            INSERT INTO tutor_courses (tutor_id, course_id)
-                            VALUES (%s, %s)
-                            ON CONFLICT DO NOTHING
-                            """,
-                            (tutor_id, result[0]),
+                            "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                            (tutor_id, int(kurs_id)),
                         )
 
-                for fil in filer:
-                    if fil and fil.filename:
-                        filename = f"{tutor_id}_{fil.filename}"
-                        fil.save(os.path.join(upload_folder, filename))
+                    if egen_kurs:
+                        cur.execute(
+                            "INSERT INTO courses (course_code, course_name) VALUES (%s, %s) ON CONFLICT (course_code) DO NOTHING RETURNING id",
+                            (egen_kurs.upper(), egen_kurs.upper()),
+                        )
+                        result = cur.fetchone()
+                        if not result:
+                            cur.execute("SELECT id FROM courses WHERE course_code = %s", (egen_kurs.upper(),))
+                            result = cur.fetchone()
+                        if result:
+                            cur.execute(
+                                "INSERT INTO tutor_courses (tutor_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                                (tutor_id, result[0]),
+                            )
 
-                conn.commit()
-                cur.close()
+                    for fil in filer:
+                        if fil and fil.filename:
+                            fil.save(os.path.join(upload_folder, f"{tutor_id}_{fil.filename}"))
+
+                    conn.commit()
+                    cur.close()
+                    return redirect(url_for("search"))
+
             finally:
                 conn.close()
 
-        return redirect(url_for("search"))
-
-    return render_template("become_tutor.html", kurser=kurser)
+    return render_template("become_tutor.html", kurser=kurser, existing_tutor=existing_tutor, existing_courses=existing_courses)
 
 
 def send_notification(user_id, message):
@@ -440,29 +485,30 @@ def booking():
         return redirect(url_for("auth.login"))
 
     user_id = session["user_id"]
-    bookings = []
+    upcoming = []
+    past = []
 
     conn = get_connection()
     if conn is not None:
         try:
             cur = conn.cursor()
             cur.execute("""
-    SELECT c.id, c.status, c.meeting_time,
-           co.course_code, co.course_name,
-           sender.first_name, sender.last_name,
-           receiver.first_name, receiver.last_name,
-           c.sender_id
-    FROM contracts c
-    LEFT JOIN courses co ON co.id = c.course_id
-    JOIN users sender ON sender.id = c.sender_id
-    JOIN users receiver ON receiver.id = c.receiver_id
-    WHERE (c.sender_id = %s OR c.receiver_id = %s)
-    AND c.status = 'accepted'
-    ORDER BY c.meeting_time ASC
-""", (user_id, user_id))
-
+                SELECT c.id, c.status, c.meeting_time,
+                        co.course_code, co.course_name,
+                        sender.first_name, sender.last_name,
+                        receiver.first_name, receiver.last_name,
+                        c.sender_id
+                FROM contracts c
+                LEFT JOIN courses co ON co.id = c.course_id
+                JOIN users sender ON sender.id = c.sender_id
+                JOIN users receiver ON receiver.id = c.receiver_id
+                WHERE (c.sender_id = %s OR c.receiver_id = %s)
+                AND c.status = 'accepted'
+                AND c.meeting_time > NOW()
+                ORDER BY c.meeting_time ASC
+            """, (user_id, user_id))
             for row in cur.fetchall():
-                bookings.append({
+                upcoming.append({
                     "id":            row[0],
                     "sender_id": row[9],
                     "status":        row[1],
@@ -472,10 +518,37 @@ def booking():
                     "sender_name":   f"{row[5]} {row[6]}",
                     "receiver_name": f"{row[7]} {row[8]}",
                 })
+
+            cur.execute("""
+                SELECT c.id, c.status, c.meeting_time,
+                       co.course_code, co.course_name,
+                       sender.first_name, sender.last_name,
+                       receiver.first_name, receiver.last_name,
+                       c.sender_id
+                FROM contracts c
+                LEFT JOIN courses co ON co.id = c.course_id
+                JOIN users sender ON sender.id = c.sender_id
+                JOIN users receiver ON receiver.id = c.receiver_id
+                WHERE (c.sender_id = %s OR c.receiver_id = %s)
+                AND c.status = 'accepted'
+                AND c.meeting_time < NOW()
+                ORDER BY c.meeting_time DESC
+            """, (user_id, user_id))
+            for row in cur.fetchall():
+                past.append({
+                    "id":            row[0],
+                    "status":        row[1],
+                    "meeting_time":  row[2],
+                    "course_code":   row[3],
+                    "course_name":   row[4],
+                    "sender_name":   f"{row[5]} {row[6]}",
+                    "receiver_name": f"{row[7]} {row[8]}",
+                    "sender_id":     row[9],
+                })
             cur.close()
         finally:
             conn.close()
-    return render_template("booking.html", bookings=bookings, user_id=user_id)
+    return render_template("booking.html", upcoming=upcoming, past=past, user_id=user_id)
 
 
 @app.route("/messages")
@@ -547,6 +620,7 @@ def marketplace():
                     "category":       row[5],
                     "listing_type":   row[6],
                     "image_filename": row[7],
+                    "created_at":     row[8],
                     "seller_name":    f"{row[9]} {row[10]}",
                 })
             cur.close()
@@ -636,6 +710,131 @@ def marketplace_ta_bort(listing_id):
 @app.route("/news")
 def news():
     return render_template("page.html", title="Nyheter")
+
+
+@app.route("/announcements")
+def announcements():
+    category = request.args.get("category", "").strip()
+    announcements_list = []
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            conditions = ["a.is_active = TRUE"]
+            params = []
+            if category and category != "Alla":
+                conditions.append("a.category = %s")
+                params.append(category)
+            where = " AND ".join(conditions)
+            cur.execute(f"""
+                SELECT a.id, a.user_id, a.title, a.description, a.category,
+                       a.image_filename, a.external_link, a.created_at,
+                       u.first_name, u.last_name
+                FROM announcements a
+                JOIN users u ON u.id = a.user_id
+                WHERE {where}
+                ORDER BY a.created_at DESC
+            """, params)
+            for row in cur.fetchall():
+                announcements_list.append({
+                    "id":             row[0],
+                    "user_id":        row[1],
+                    "title":          row[2],
+                    "description":    row[3],
+                    "category":       row[4],
+                    "image_filename": row[5],
+                    "external_link":  row[6],
+                    "created_at":     row[7],
+                    "poster_name":    f"{row[8]} {row[9]}",
+                })
+            cur.close()
+        finally:
+            conn.close()
+    return render_template("announcements.html",
+        announcements=announcements_list,
+        current_user_id=session.get("user_id"),
+        is_admin=session.get("admin"),
+        active_category=category,
+    )
+
+
+@app.route("/announcements/new", methods=["GET", "POST"])
+def announcements_new():
+    user_id = session.get("user_id")
+    admin_email = session.get("admin")
+
+    # Resolve user_id for admins who log in separately
+    if not user_id and admin_email:
+        conn = get_connection()
+        if conn is not None:
+            try:
+                cur = conn.cursor()
+                cur.execute("SELECT id FROM users WHERE email = %s", (admin_email,))
+                row = cur.fetchone()
+                if row:
+                    user_id = row[0]
+                cur.close()
+            finally:
+                conn.close()
+
+    if not user_id:
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        title       = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        category    = request.form.get("category", "").strip()
+        link        = request.form.get("external_link", "").strip()
+        image       = request.files.get("image")
+
+        image_filename = None
+        if image and image.filename:
+            ext = image.filename.rsplit(".", 1)[-1].lower()
+            if ext in ("jpg", "jpeg", "png"):
+                upload_dir = os.path.join("static", "uploads", "announcements")
+                os.makedirs(upload_dir, exist_ok=True)
+                image_filename = f"{user_id}_{int(time.time() * 1000)}.{ext}"
+                image.save(os.path.join(upload_dir, image_filename))
+
+        conn = get_connection()
+        if conn is not None:
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT INTO announcements
+                        (user_id, title, description, category, image_filename, external_link)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (user_id, title, description, category,
+                      image_filename, link or None))
+                conn.commit()
+                cur.close()
+            finally:
+                conn.close()
+
+        return redirect(url_for("announcements"))
+
+    return render_template("announcements_new.html")
+
+
+@app.route("/announcements/delete/<int:announcement_id>", methods=["POST"])
+def announcements_delete(announcement_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("auth.login"))
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            if session.get("admin"):
+                cur.execute("DELETE FROM announcements WHERE id = %s", (announcement_id,))
+            else:
+                cur.execute("DELETE FROM announcements WHERE id = %s AND user_id = %s",
+                            (announcement_id, user_id))
+            conn.commit()
+            cur.close()
+        finally:
+            conn.close()
+    return redirect(url_for("announcements"))
 
 
 @app.route("/community")
@@ -761,4 +960,4 @@ def notifications():
     return jsonify(notifs)
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, port=5001)
