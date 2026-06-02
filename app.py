@@ -620,6 +620,7 @@ def marketplace():
                     "category":       row[5],
                     "listing_type":   row[6],
                     "image_filename": row[7],
+                    "created_at":     row[8],
                     "seller_name":    f"{row[9]} {row[10]}",
                 })
             cur.close()

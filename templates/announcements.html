@@ -34,7 +34,17 @@
   {% if announcements %}
   <div class="announcement-grid">
     {% for ann in announcements %}
-    <div class="announcement-card">
+    <div class="announcement-card"
+         data-id="{{ ann.id }}"
+         data-title="{{ ann.title }}"
+         data-description="{{ ann.description or '' }}"
+         data-category="{{ ann.category }}"
+         data-image="{{ url_for('static', filename='uploads/announcements/' + ann.image_filename) if ann.image_filename else '' }}"
+         data-user-id="{{ ann.user_id }}"
+         data-poster-name="{{ ann.poster_name }}"
+         data-date="{% if ann.created_at %}{{ ann.created_at.day }} {{ ann.created_at.strftime('%b %Y') }}{% endif %}"
+         data-external-link="{{ ann.external_link or '' }}"
+         {% if current_user_id and (ann.user_id == current_user_id or is_admin) %}data-delete-url="{{ url_for('announcements_delete', announcement_id=ann.id) }}"{% endif %}>
       <div class="announcement-image">
         {% if ann.image_filename %}
         <img src="{{ url_for('static', filename='uploads/announcements/' + ann.image_filename) }}" alt="{{ ann.title }}">
@@ -95,5 +105,116 @@
   </div>
   {% endif %}
 
+  <div class="card-modal-overlay" id="cardModalOverlay">
+    <div class="card-modal" id="cardModal">
+      <button class="card-modal-close" id="cardModalClose">✕</button>
+      <div class="card-modal-image-wrap" id="cardModalImageWrap">
+        <img class="card-modal-image" id="cardModalImage" src="" alt="">
+        <div class="card-modal-image-placeholder" id="cardModalImagePlaceholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-modal-body">
+        <div class="card-modal-badges" id="cardModalBadges"></div>
+        <h2 class="card-modal-title" id="cardModalTitle"></h2>
+        <p class="card-modal-description" id="cardModalDescription"></p>
+        <div class="card-modal-meta" id="cardModalMeta"></div>
+        <div class="card-modal-actions" id="cardModalActions"></div>
+      </div>
+    </div>
+  </div>
+
 </main>
+
+<script>
+(function () {
+  const overlay   = document.getElementById('cardModalOverlay');
+  const closeBtn  = document.getElementById('cardModalClose');
+  const imgEl     = document.getElementById('cardModalImage');
+  const imgPh     = document.getElementById('cardModalImagePlaceholder');
+  const badgesEl  = document.getElementById('cardModalBadges');
+  const titleEl   = document.getElementById('cardModalTitle');
+  const descEl    = document.getElementById('cardModalDescription');
+  const metaEl    = document.getElementById('cardModalMeta');
+  const actionsEl = document.getElementById('cardModalActions');
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function categoryClass(cat) {
+    return (cat || '').toLowerCase()
+      .replace(/ö/g, 'o').replace(/ä/g, 'a').replace(/å/g, 'a').replace(/\s+/g, '');
+  }
+
+  function openModal(card) {
+    const d = card.dataset;
+    if (d.image) {
+      imgEl.src = d.image;
+      imgEl.alt = d.title;
+      imgEl.style.display = 'block';
+      imgPh.style.display = 'none';
+    } else {
+      imgEl.style.display = 'none';
+      imgPh.style.display = 'flex';
+    }
+
+    const catCls = categoryClass(d.category);
+    badgesEl.innerHTML =
+      `<span class="announcement-badge announcement-badge--${catCls}">${esc(d.category)}</span>`;
+
+    titleEl.textContent = d.title || '';
+    descEl.textContent  = d.description || '';
+    metaEl.innerHTML    = esc(d.posterName) + (d.date ? ' · ' + esc(d.date) : '');
+
+    actionsEl.innerHTML = '';
+    if (d.externalLink) {
+      actionsEl.insertAdjacentHTML('beforeend',
+        `<a href="${esc(d.externalLink)}" target="_blank" rel="noopener noreferrer" class="card-modal-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>Öppna länk</a>`);
+    }
+    if (d.deleteUrl) {
+      const btn = document.createElement('button');
+      btn.className = 'card-modal-delete-btn';
+      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Ta bort`;
+      btn.addEventListener('click', function () {
+        if (confirm('Ta bort annonsen?')) {
+          const f = document.createElement('form');
+          f.method = 'post';
+          f.action = d.deleteUrl;
+          document.body.appendChild(f);
+          f.submit();
+        }
+      });
+      actionsEl.appendChild(btn);
+    }
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.announcement-card').forEach(function (card) {
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('a, button, form')) return;
+      openModal(card);
+    });
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+}());
+</script>
 {% endblock %}

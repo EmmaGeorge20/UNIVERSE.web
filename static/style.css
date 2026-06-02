@@ -4073,3 +4073,200 @@ select:focus {
     padding: 20px 16px 0;
   }
 }
+
+/* ── Card Modal ─────────────────────────────────────── */
+.listing-card,
+.announcement-card {
+  cursor: pointer;
+}
+
+.card-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 25, 23, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.card-modal-overlay.open {
+  display: flex;
+}
+
+.card-modal {
+  position: relative;
+  background: var(--surface);
+  width: 90%;
+  max-width: 620px;
+  border-radius: var(--radius);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow), 0 4px 32px rgba(239, 141, 187, 0.18);
+  animation: modalIn 0.22s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card-modal::-webkit-scrollbar { width: 5px; }
+.card-modal::-webkit-scrollbar-track { background: transparent; }
+.card-modal::-webkit-scrollbar-thumb { background: var(--stroke); border-radius: 3px; }
+
+.card-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(27, 25, 23, 0.52);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.18s;
+}
+
+.card-modal-close:hover {
+  background: rgba(27, 25, 23, 0.82);
+}
+
+.card-modal-image-wrap {
+  width: 100%;
+  height: 280px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.card-modal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-modal-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-pink);
+  background: linear-gradient(135deg, #fff6fb 0%, #fff0e8 100%);
+}
+
+.card-modal-body {
+  padding: 28px;
+}
+
+.card-modal-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.card-modal-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.card-modal-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--brand-pink);
+  margin-bottom: 14px;
+}
+
+.card-modal-description {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.75;
+  margin-bottom: 18px;
+  white-space: pre-wrap;
+}
+
+.card-modal-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.card-modal-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card-modal-chat-btn,
+.card-modal-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  border-radius: 50px;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.18s;
+  cursor: pointer;
+}
+
+.card-modal-chat-btn {
+  background: var(--brand-pink);
+  color: #fff;
+}
+
+.card-modal-link-btn {
+  background: var(--brand-yellow);
+  color: var(--text);
+}
+
+.card-modal-chat-btn:hover,
+.card-modal-link-btn:hover {
+  opacity: 0.85;
+}
+
+.card-modal-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  border-radius: 50px;
+  border: 1.5px solid var(--stroke);
+  background: transparent;
+  color: var(--muted);
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+
+.card-modal-delete-btn:hover {
+  border-color: #e05e5e;
+  color: #e05e5e;
+}
+
+@media (max-width: 600px) {
+  .card-modal-image-wrap { height: 210px; }
+  .card-modal-title { font-size: 22px; }
+  .card-modal-body { padding: 20px; }
+}
