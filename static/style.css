@@ -4075,6 +4075,63 @@ select:focus {
   }
 }
 
+/* ── Admin announcement form ────────────────────────── */
+.admin-ann-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-ann-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-ann-row .bli-field {
+  flex: 1;
+  min-width: 160px;
+}
+
+.admin-ann-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--stroke);
+  border-radius: 10px;
+  background: var(--surface);
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color 0.15s;
+  outline: none;
+  resize: vertical;
+}
+
+.admin-ann-input:focus {
+  border-color: var(--brand-pink);
+  box-shadow: 0 0 0 3px rgba(240, 140, 194, 0.12);
+}
+
+.admin-ann-file {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.ann-official-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(239, 141, 187, 0.15);
+  color: var(--brand-pink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
 /* ── Live search spinner ────────────────────────────── */
 .search-input-wrap {
   position: relative;

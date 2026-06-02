@@ -38,7 +38,7 @@ def login():
         role = request.form["role"]
 
         if not valid_password(password):
-            error = "Lösenordet måste vara minst 8 tecken, innehålla minst en bokstav och en siffra."
+            error = "Fel lösenord, försök igen."
         else:
             conn = get_connection()
             if conn is None:

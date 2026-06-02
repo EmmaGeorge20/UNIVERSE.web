@@ -77,7 +77,10 @@
         <h3 class="announcement-title">{{ ann.title }}</h3>
         <p class="announcement-desc">{{ ann.description }}</p>
         <div class="announcement-footer">
-          <span class="announcement-poster">{{ ann.poster_name }}</span>
+          <span class="announcement-poster">
+            {{ ann.poster_name }}
+            {% if ann.is_admin_post %}<span class="ann-official-badge">Officiell</span>{% endif %}
+          </span>
           <div class="announcement-actions">
             {% if ann.external_link %}
             <a href="{{ ann.external_link }}" target="_blank" rel="noopener noreferrer" class="announcement-link-btn">

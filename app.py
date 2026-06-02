@@ -733,9 +733,9 @@ def announcements():
             cur.execute(f"""
                 SELECT a.id, a.user_id, a.title, a.description, a.category,
                        a.image_filename, a.external_link, a.created_at,
-                       u.first_name, u.last_name
+                       COALESCE(u.first_name || ' ' || u.last_name, 'UNI:VERSE') AS poster_name
                 FROM announcements a
-                JOIN users u ON u.id = a.user_id
+                LEFT JOIN users u ON u.id = a.user_id
                 WHERE {where}
                 ORDER BY a.created_at DESC
             """, params)
@@ -749,7 +749,8 @@ def announcements():
                     "image_filename": row[5],
                     "external_link":  row[6],
                     "created_at":     row[7],
-                    "poster_name":    f"{row[8]} {row[9]}",
+                    "poster_name":    row[8],
+                    "is_admin_post":  row[1] is None,
                 })
             cur.close()
         finally:
@@ -824,7 +825,7 @@ def announcements_new():
 @app.route("/announcements/delete/<int:announcement_id>", methods=["POST"])
 def announcements_delete(announcement_id):
     user_id = session.get("user_id")
-    if not user_id:
+    if not user_id and not session.get("admin"):
         return redirect(url_for("auth.login"))
     conn = get_connection()
     if conn is not None:
@@ -975,9 +976,9 @@ def api_search_announcements():
             cur.execute(f"""
                 SELECT a.id, a.user_id, a.title, a.description, a.category,
                        a.image_filename, a.external_link, a.created_at,
-                       u.first_name, u.last_name
+                       COALESCE(u.first_name || ' ' || u.last_name, 'UNI:VERSE') AS poster_name
                 FROM announcements a
-                JOIN users u ON u.id = a.user_id
+                LEFT JOIN users u ON u.id = a.user_id
                 WHERE {' AND '.join(conditions)}
                 ORDER BY a.created_at DESC
             """, params)
@@ -991,12 +992,51 @@ def api_search_announcements():
                     "image_filename": row[5],
                     "external_link":  row[6] or "",
                     "date":           f"{row[7].day} {row[7].strftime('%b')}" if row[7] else "",
-                    "poster_name":    f"{row[8]} {row[9]}",
+                    "poster_name":    row[8],
+                    "is_admin_post":  row[1] is None,
                 })
             cur.close()
         finally:
             conn.close()
     return jsonify(items)
+
+
+@app.route("/admin/announcements/new", methods=["GET", "POST"])
+def admin_announcements_new():
+    if not session.get("admin"):
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        title       = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        category    = request.form.get("category", "").strip()
+        link        = request.form.get("external_link", "").strip()
+        image       = request.files.get("image")
+
+        image_filename = None
+        if image and image.filename:
+            ext = image.filename.rsplit(".", 1)[-1].lower()
+            if ext in ("jpg", "jpeg", "png"):
+                upload_dir = os.path.join("static", "uploads", "announcements")
+                os.makedirs(upload_dir, exist_ok=True)
+                image_filename = f"admin_{int(time.time() * 1000)}.{ext}"
+                image.save(os.path.join(upload_dir, image_filename))
+
+        conn = get_connection()
+        if conn is not None:
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT INTO announcements
+                        (user_id, title, description, category, image_filename, external_link)
+                    VALUES (NULL, %s, %s, %s, %s, %s)
+                """, (title, description, category, image_filename, link or None))
+                conn.commit()
+                cur.close()
+            finally:
+                conn.close()
+
+    return redirect(url_for("admin_dashboard"))
 
 
 @app.route("/community")

@@ -22,6 +22,50 @@
 
   <div class="admin-main">
 
+    <!-- ANNONS -->
+    <section id="annons" style="margin-bottom: 56px;">
+      <h1>Lägg upp annons</h1>
+      <p class="admin-sub">Publicera en annons på anslagstavlan som visas för alla studenter</p>
+
+      <div class="admin-card" style="border-left: 4px solid var(--brand-pink);">
+        <form method="POST" action="{{ url_for('admin_announcements_new') }}" enctype="multipart/form-data">
+          <div class="admin-ann-form">
+            <div class="bli-field">
+              <label for="ann-title">Titel</label>
+              <input type="text" id="ann-title" name="title" class="admin-ann-input" required placeholder="T.ex. Studentrabatt på Spotify">
+            </div>
+            <div class="bli-field">
+              <label for="ann-description">Beskrivning</label>
+              <textarea id="ann-description" name="description" class="admin-ann-input" required rows="4" placeholder="Beskriv annonsen…"></textarea>
+            </div>
+            <div class="admin-ann-row">
+              <div class="bli-field">
+                <label for="ann-category">Kategori</label>
+                <select id="ann-category" name="category" class="admin-ann-input" required>
+                  <option value="Studentjobb">Studentjobb</option>
+                  <option value="Praktik">Praktik</option>
+                  <option value="Event">Event</option>
+                  <option value="Rabatter">Rabatter</option>
+                  <option value="Övrigt">Övrigt</option>
+                </select>
+              </div>
+              <div class="bli-field">
+                <label for="ann-link">Extern länk (valfritt)</label>
+                <input type="url" id="ann-link" name="external_link" class="admin-ann-input" placeholder="https://…">
+              </div>
+            </div>
+            <div class="bli-field">
+              <label for="ann-image">Bild (valfritt, JPG/PNG)</label>
+              <input type="file" id="ann-image" name="image" accept=".jpg,.jpeg,.png" class="admin-ann-file">
+            </div>
+            <div>
+              <button type="submit" class="admin-btn approve" style="padding: 10px 28px; font-size: 14px;">Publicera annons</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
     <!-- ANSÖKNINGAR -->
     <section id="ansokningar">
       <h1>Handledaransökningar</h1>
