@@ -3995,6 +3995,7 @@ select:focus {
 .announcement-badge--studentjobb { background: rgba(255,193,7,0.18); color: #b8860b; }
 .announcement-badge--praktik     { background: rgba(124,77,255,0.14); color: #6c3fc8; }
 .announcement-badge--event       { background: rgba(208,93,110,0.12); color: var(--brand-pink); }
+.announcement-badge--rabatter     { background: rgba(76,175,80,0.15);  color: #2e7d32; }
 .announcement-badge--ovrigt      { background: rgba(100,116,139,0.1); color: var(--muted); }
 
 /* Title & desc */
@@ -4072,6 +4073,47 @@ select:focus {
   .category-tabs-wrap {
     padding: 20px 16px 0;
   }
+}
+
+/* ── Live search spinner ────────────────────────────── */
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.search-input-wrap .search-input,
+.search-input-wrap .marketplace-filter-input {
+  width: 100%;
+}
+
+.marketplace-filter-bar .search-input-wrap {
+  flex: 1 1 180px;
+}
+
+.search-loading {
+  display: none;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--stroke);
+  border-top-color: var(--brand-pink);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to   { transform: translateY(-50%) rotate(360deg); }
+}
+
+.announcements-search-bar {
+  max-width: 480px;
+  margin: 0 auto 4px;
+  padding: 0 24px;
 }
 
 /* ── Card Modal ─────────────────────────────────────── */

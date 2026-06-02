@@ -9,14 +9,18 @@
   <h1 class="search-heading">Sök Handledare</h1>
 
   <form class="search-form" method="get" action="{{ url_for('search') }}">
-    <input
-      class="search-input"
-      type="text"
-      name="q"
-      placeholder="Sök på kurskod eller kursnamn…"
-      value="{{ query }}"
-      autofocus
-    />
+    <div class="search-input-wrap">
+      <input
+        id="searchInput"
+        class="search-input"
+        type="text"
+        name="q"
+        placeholder="Sök på kurskod eller kursnamn…"
+        value="{{ query }}"
+        autofocus
+      />
+      <span class="search-loading" id="searchSpinner"></span>
+    </div>
     <button class="search-btn" type="submit">Sök</button>
   </form>
 
@@ -60,4 +64,76 @@
     </div>
   {% endif %}
 </main>
+
+<script type="application/json" id="searchPageData">
+{"currentUserId": {{ session.get('user_id') | tojson }}, "chatUrlTpl": {{ url_for('chat.chat_page', receiver_id=0) | tojson }}}
+</script>
+<script>
+(function () {
+  const _d        = JSON.parse(document.getElementById('searchPageData').textContent);
+  const input     = document.getElementById('searchInput');
+  const spinner   = document.getElementById('searchSpinner');
+  const page      = document.querySelector('.search-page');
+  const currentUserId = _d.currentUserId;
+  const chatUrlTpl    = _d.chatUrlTpl;
+
+  let timer;
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () { fetchTutors(input.value.trim()); }, 300);
+  });
+
+  async function fetchTutors(q) {
+    spinner.style.display = 'block';
+    try {
+      const res  = await fetch('/api/search/tutors?q=' + encodeURIComponent(q));
+      const data = await res.json();
+      renderTutors(data, q);
+    } catch (e) {}
+    spinner.style.display = 'none';
+  }
+
+  function renderTutors(tutors, q) {
+    const old = page.querySelector('.tutor-grid, .empty-state');
+    if (old) old.remove();
+    if (!tutors.length) {
+      const el = document.createElement('div');
+      el.className = 'empty-state';
+      el.textContent = q
+        ? 'Inga handledare hittades för "' + q + '".'
+        : 'Inga handledare är registrerade ännu.';
+      page.appendChild(el);
+      return;
+    }
+    const grid = document.createElement('div');
+    grid.className = 'tutor-grid';
+    grid.innerHTML = tutors.map(tutorCardHtml).join('');
+    page.appendChild(grid);
+  }
+
+  function tutorCardHtml(t) {
+    const chatBtn = (currentUserId && t.user_id !== currentUserId)
+      ? '<a href="' + chatUrlTpl.replace('/0', '/' + t.user_id) + '" class="tutor-chat-btn" aria-label="Chatta med ' + escAttr(t.first_name) + '">' +
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M20 2H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h3l3 3 3-3h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg></a>'
+      : '';
+    const courses = (t.kurser || []).map(function (k) { return '<span class="tutor-course-tag">' + escText(k) + '</span>'; }).join('');
+    const bio = t.bio ? '<p class="tutor-bio">' + escText(t.bio) + '</p>' : '';
+    return '<div class="tutor-card">' +
+      '<div class="tutor-card-top">' +
+        '<div>' +
+          '<div class="tutor-name">' + escText(t.first_name) + ' ' + escText(t.last_name) + '</div>' +
+          '<div class="tutor-program">' + escText(t.program || '') + '</div>' +
+        '</div>' +
+        chatBtn +
+      '</div>' +
+      (courses ? '<div class="tutor-courses">' + courses + '</div>' : '') +
+      bio +
+    '</div>';
+  }
+
+  function escText(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+  function escAttr(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+}());
+</script>
 {% endblock %}

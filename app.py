@@ -715,6 +715,7 @@ def news():
 @app.route("/announcements")
 def announcements():
     category = request.args.get("category", "").strip()
+    q        = request.args.get("q", "").strip()
     announcements_list = []
     conn = get_connection()
     if conn is not None:
@@ -725,6 +726,9 @@ def announcements():
             if category and category != "Alla":
                 conditions.append("a.category = %s")
                 params.append(category)
+            if q:
+                conditions.append("(a.title ILIKE %s OR a.description ILIKE %s)")
+                params.extend([f"%{q}%", f"%{q}%"])
             where = " AND ".join(conditions)
             cur.execute(f"""
                 SELECT a.id, a.user_id, a.title, a.description, a.category,
@@ -755,6 +759,7 @@ def announcements():
         current_user_id=session.get("user_id"),
         is_admin=session.get("admin"),
         active_category=category,
+        q=q,
     )
 
 
@@ -835,6 +840,163 @@ def announcements_delete(announcement_id):
         finally:
             conn.close()
     return redirect(url_for("announcements"))
+
+
+# ── JSON search APIs ──────────────────────────────────────────────────────────
+
+@app.route("/api/search/tutors")
+def api_search_tutors():
+    query = request.args.get("q", "").strip()
+    tutors = []
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            if query:
+                cur.execute("""
+                    SELECT u.id, u.first_name, u.last_name, u.program,
+                           array_agg(c.course_code) AS courses, t.bio
+                    FROM tutors t
+                    JOIN users u ON t.user_id = u.id
+                    JOIN tutor_courses tc ON tc.tutor_id = t.id
+                    JOIN courses c ON c.id = tc.course_id
+                    WHERE t.is_active = TRUE
+                      AND (c.course_code ILIKE %s OR c.course_name ILIKE %s)
+                    GROUP BY u.id, u.first_name, u.last_name, u.program, t.bio
+                    ORDER BY u.last_name ASC
+                """, (f"%{query}%", f"%{query}%"))
+            else:
+                cur.execute("""
+                    SELECT u.id, u.first_name, u.last_name, u.program,
+                           array_agg(c.course_code) AS courses, t.bio
+                    FROM tutors t
+                    JOIN users u ON t.user_id = u.id
+                    JOIN tutor_courses tc ON tc.tutor_id = t.id
+                    JOIN courses c ON c.id = tc.course_id
+                    WHERE t.is_active = TRUE
+                    GROUP BY u.id, u.first_name, u.last_name, u.program, t.bio
+                    ORDER BY u.last_name ASC
+                """)
+            for row in cur.fetchall():
+                tutors.append({
+                    "user_id":    row[0],
+                    "first_name": row[1],
+                    "last_name":  row[2],
+                    "program":    row[3],
+                    "kurser":     list(row[4]) if row[4] else [],
+                    "bio":        row[5],
+                })
+            cur.close()
+        finally:
+            conn.close()
+    return jsonify(tutors)
+
+
+@app.route("/api/search/marketplace")
+def api_search_marketplace():
+    q            = request.args.get("q", "").strip()
+    category     = request.args.get("category", "").strip()
+    listing_type = request.args.get("type", "").strip()
+    min_price    = request.args.get("min_price", "").strip()
+    max_price    = request.args.get("max_price", "").strip()
+    listings = []
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            conditions = ["ml.is_active = TRUE"]
+            params = []
+            if category:
+                conditions.append("ml.category = %s")
+                params.append(category)
+            if listing_type:
+                conditions.append("ml.listing_type = %s")
+                params.append(listing_type)
+            if min_price:
+                try:
+                    conditions.append("ml.price >= %s")
+                    params.append(float(min_price))
+                except ValueError:
+                    pass
+            if max_price:
+                try:
+                    conditions.append("ml.price <= %s")
+                    params.append(float(max_price))
+                except ValueError:
+                    pass
+            if q:
+                conditions.append("(ml.title ILIKE %s OR ml.description ILIKE %s)")
+                params.extend([f"%{q}%", f"%{q}%"])
+            cur.execute(f"""
+                SELECT ml.id, ml.user_id, ml.title, ml.description, ml.price,
+                       ml.category, ml.listing_type, ml.image_filename,
+                       ml.created_at, u.first_name, u.last_name
+                FROM marketplace_listings ml
+                JOIN users u ON u.id = ml.user_id
+                WHERE {' AND '.join(conditions)}
+                ORDER BY ml.created_at DESC
+            """, params)
+            for row in cur.fetchall():
+                listings.append({
+                    "id":             row[0],
+                    "user_id":        row[1],
+                    "title":          row[2],
+                    "description":    row[3] or "",
+                    "price":          float(row[4]) if row[4] is not None else 0,
+                    "category":       row[5],
+                    "listing_type":   row[6],
+                    "image_filename": row[7],
+                    "date":           row[8].strftime("%d %b %Y") if row[8] else "",
+                    "seller_name":    f"{row[9]} {row[10]}",
+                })
+            cur.close()
+        finally:
+            conn.close()
+    return jsonify(listings)
+
+
+@app.route("/api/search/announcements")
+def api_search_announcements():
+    q        = request.args.get("q", "").strip()
+    category = request.args.get("category", "").strip()
+    items = []
+    conn = get_connection()
+    if conn is not None:
+        try:
+            cur = conn.cursor()
+            conditions = ["a.is_active = TRUE"]
+            params = []
+            if category and category != "Alla":
+                conditions.append("a.category = %s")
+                params.append(category)
+            if q:
+                conditions.append("(a.title ILIKE %s OR a.description ILIKE %s)")
+                params.extend([f"%{q}%", f"%{q}%"])
+            cur.execute(f"""
+                SELECT a.id, a.user_id, a.title, a.description, a.category,
+                       a.image_filename, a.external_link, a.created_at,
+                       u.first_name, u.last_name
+                FROM announcements a
+                JOIN users u ON u.id = a.user_id
+                WHERE {' AND '.join(conditions)}
+                ORDER BY a.created_at DESC
+            """, params)
+            for row in cur.fetchall():
+                items.append({
+                    "id":             row[0],
+                    "user_id":        row[1],
+                    "title":          row[2],
+                    "description":    row[3] or "",
+                    "category":       row[4],
+                    "image_filename": row[5],
+                    "external_link":  row[6] or "",
+                    "date":           f"{row[7].day} {row[7].strftime('%b')}" if row[7] else "",
+                    "poster_name":    f"{row[8]} {row[9]}",
+                })
+            cur.close()
+        finally:
+            conn.close()
+    return jsonify(items)
 
 
 @app.route("/community")

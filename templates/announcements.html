@@ -20,9 +20,16 @@
     </div>
   </section>
 
+  <div class="announcements-search-bar">
+    <div class="search-input-wrap">
+      <input id="searchInput" class="marketplace-filter-input" type="text" placeholder="Sök i annonser…" value="{{ q or '' }}">
+      <span class="search-loading" id="searchSpinner"></span>
+    </div>
+  </div>
+
   <div class="category-tabs-wrap">
     <div class="category-tabs">
-      {% for cat in ['Alla', 'Studentjobb', 'Praktik', 'Event', 'Övrigt'] %}
+      {% for cat in ['Alla', 'Studentjobb', 'Praktik', 'Event', 'Rabatter', 'Övrigt'] %}
       <a href="{{ url_for('announcements', category='' if cat == 'Alla' else cat) }}"
          class="category-tab {% if (active_category == cat) or (cat == 'Alla' and not active_category) %}active{% endif %}">
         {{ cat }}
@@ -205,16 +212,113 @@
     document.body.style.overflow = '';
   }
 
-  document.querySelectorAll('.announcement-card').forEach(function (card) {
-    card.addEventListener('click', function (e) {
-      if (e.target.closest('a, button, form')) return;
-      openModal(card);
-    });
+  document.querySelector('.announcements-page').addEventListener('click', function (e) {
+    const card = e.target.closest('.announcement-card');
+    if (!card) return;
+    if (e.target.closest('a, button, form')) return;
+    openModal(card);
   });
 
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+}());
+</script>
+
+<script type="application/json" id="annPageData">
+{"currentUserId": {{ current_user_id | tojson }}, "isAdmin": {{ is_admin | tojson }}, "activeCategory": {{ active_category | tojson }}, "delUrlTpl": {{ url_for('announcements_delete', announcement_id=0) | tojson }}, "staticBase": {{ url_for('static', filename='uploads/announcements/') | tojson }}}
+</script>
+<script>
+(function () {
+  const _d        = JSON.parse(document.getElementById('annPageData').textContent);
+  const input     = document.getElementById('searchInput');
+  const spinner   = document.getElementById('searchSpinner');
+  const main      = document.querySelector('.announcements-page');
+  const currentUserId  = _d.currentUserId;
+  const isAdmin        = _d.isAdmin;
+  const activeCategory = _d.activeCategory;
+  const delUrlTpl      = _d.delUrlTpl;
+  const staticBase     = _d.staticBase;
+
+  let timer;
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(doFetch, 300);
+  });
+
+  async function doFetch() {
+    spinner.style.display = 'block';
+    try {
+      const qs   = new URLSearchParams({ q: input.value.trim(), category: activeCategory || '' }).toString();
+      const res  = await fetch('/api/search/announcements?' + qs);
+      const data = await res.json();
+      render(data);
+    } catch (e) {}
+    spinner.style.display = 'none';
+  }
+
+  function render(items) {
+    const modal = main.querySelector('.card-modal-overlay');
+    let grid  = main.querySelector('.announcement-grid');
+    let empty = main.querySelector('.marketplace-empty');
+    if (!items.length) {
+      if (grid) grid.remove();
+      if (!empty) { empty = document.createElement('div'); empty.className = 'marketplace-empty'; main.insertBefore(empty, modal); }
+      empty.style.display = '';
+      empty.innerHTML = '<p>Inga annonser hittades.</p>';
+      return;
+    }
+    if (empty) empty.remove();
+    if (!grid) { grid = document.createElement('div'); grid.className = 'announcement-grid'; main.insertBefore(grid, modal); }
+    grid.innerHTML = items.map(annCardHtml).join('');
+  }
+
+  function catClass(cat) {
+    return (cat || '').toLowerCase().replace(/ö/g, 'o').replace(/ä/g, 'a').replace(/å/g, 'a').replace(/\s+/g, '');
+  }
+
+  function placeholderSvg(cat) {
+    if (cat === 'Studentjobb') return '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>';
+    if (cat === 'Praktik')    return '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>';
+    if (cat === 'Event')      return '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+    return '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  }
+
+  function annCardHtml(a) {
+    const imgSrc  = a.image_filename ? staticBase + a.image_filename : '';
+    const imgHtml = imgSrc
+      ? '<img src="' + escAttr(imgSrc) + '" alt="' + escAttr(a.title) + '">'
+      : '<div class="announcement-image-placeholder announcement-placeholder--' + catClass(a.category) + '">' + placeholderSvg(a.category) + '</div>';
+    const canDelete = currentUserId && (a.user_id === currentUserId || isAdmin);
+    const delUrl    = canDelete ? delUrlTpl.replace('/0', '/' + a.id) : '';
+    const linkBtn   = a.external_link
+      ? '<a href="' + escAttr(a.external_link) + '" target="_blank" rel="noopener noreferrer" class="announcement-link-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Länk</a>' : '';
+    const delBtn    = delUrl
+      ? '<form method="post" action="' + escAttr(delUrl) + '" onsubmit="return confirm(\'Ta bort annonsen?\')"><button class="listing-delete-btn" type="submit" aria-label="Ta bort"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></form>' : '';
+    return '<div class="announcement-card"' +
+      ' data-id="' + a.id + '" data-title="' + escAttr(a.title) + '" data-description="' + escAttr(a.description) + '"' +
+      ' data-category="' + escAttr(a.category) + '" data-image="' + escAttr(imgSrc) + '"' +
+      ' data-user-id="' + a.user_id + '" data-poster-name="' + escAttr(a.poster_name) + '"' +
+      ' data-date="' + escAttr(a.date) + '" data-external-link="' + escAttr(a.external_link) + '"' +
+      (delUrl ? ' data-delete-url="' + escAttr(delUrl) + '"' : '') + '>' +
+      '<div class="announcement-image">' + imgHtml + '</div>' +
+      '<div class="announcement-body">' +
+        '<div class="announcement-meta-top">' +
+          '<span class="announcement-badge announcement-badge--' + catClass(a.category) + '">' + escText(a.category) + '</span>' +
+          '<span class="announcement-date">' + escText(a.date) + '</span>' +
+        '</div>' +
+        '<h3 class="announcement-title">' + escText(a.title) + '</h3>' +
+        '<p class="announcement-desc">' + escText(a.description) + '</p>' +
+        '<div class="announcement-footer">' +
+          '<span class="announcement-poster">' + escText(a.poster_name) + '</span>' +
+          '<div class="announcement-actions">' + linkBtn + delBtn + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function escText(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+  function escAttr(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 }());
 </script>
 {% endblock %}

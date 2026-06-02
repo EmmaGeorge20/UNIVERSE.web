@@ -21,7 +21,10 @@
   </section>
 
   <form class="marketplace-filter-bar" method="get" action="{{ url_for('marketplace') }}">
-    <input class="marketplace-filter-input" type="text" name="q" placeholder="Sök annonser…" value="{{ q }}">
+    <div class="search-input-wrap">
+      <input id="searchInput" class="marketplace-filter-input" type="text" name="q" placeholder="Sök annonser…" value="{{ q }}">
+      <span class="search-loading" id="searchSpinner"></span>
+    </div>
     <select class="marketplace-filter-select" name="category">
       <option value="" {% if not category %}selected{% endif %}>Alla kategorier</option>
       {% for cat in ['Böcker', 'Möbler', 'Elektronik', 'Bostad', 'Övrigt'] %}
@@ -213,16 +216,114 @@
     document.body.style.overflow = '';
   }
 
-  document.querySelectorAll('.listing-card').forEach(function (card) {
-    card.addEventListener('click', function (e) {
-      if (e.target.closest('a, button, form')) return;
-      openModal(card);
-    });
+  document.querySelector('.marketplace-page').addEventListener('click', function (e) {
+    const card = e.target.closest('.listing-card');
+    if (!card) return;
+    if (e.target.closest('a, button, form')) return;
+    openModal(card);
   });
 
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+}());
+</script>
+
+<script type="application/json" id="mpPageData">
+{"currentUserId": {{ current_user_id | tojson }}, "chatUrlTpl": {{ url_for('chat.chat_page', receiver_id=0) | tojson }}, "delUrlTpl": {{ url_for('marketplace_ta_bort', listing_id=0) | tojson }}, "staticBase": {{ url_for('static', filename='uploads/marketplace/') | tojson }}}
+</script>
+<script>
+(function () {
+  const _d        = JSON.parse(document.getElementById('mpPageData').textContent);
+  const input     = document.getElementById('searchInput');
+  const spinner   = document.getElementById('searchSpinner');
+  const main      = document.querySelector('.marketplace-page');
+  const form      = document.querySelector('.marketplace-filter-bar');
+  const currentUserId = _d.currentUserId;
+  const chatUrlTpl    = _d.chatUrlTpl;
+  const delUrlTpl     = _d.delUrlTpl;
+  const staticBase    = _d.staticBase;
+
+  let timer;
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(doFetch, 300);
+  });
+
+  function getQs() {
+    const fd = new FormData(form);
+    return new URLSearchParams({
+      q: fd.get('q') || '', category: fd.get('category') || '',
+      type: fd.get('type') || '', min_price: fd.get('min_price') || '',
+      max_price: fd.get('max_price') || ''
+    }).toString();
+  }
+
+  async function doFetch() {
+    spinner.style.display = 'block';
+    try {
+      const res  = await fetch('/api/search/marketplace?' + getQs());
+      const data = await res.json();
+      render(data);
+    } catch (e) {}
+    spinner.style.display = 'none';
+  }
+
+  function render(listings) {
+    const modal = main.querySelector('.card-modal-overlay');
+    let grid  = main.querySelector('.listing-grid');
+    let empty = main.querySelector('.marketplace-empty');
+    if (!listings.length) {
+      if (grid) grid.remove();
+      if (!empty) { empty = document.createElement('div'); empty.className = 'marketplace-empty'; main.insertBefore(empty, modal); }
+      empty.style.display = '';
+      empty.innerHTML = '<p>Inga annonser hittades.</p>';
+      return;
+    }
+    if (empty) empty.remove();
+    if (!grid) { grid = document.createElement('div'); grid.className = 'listing-grid'; main.insertBefore(grid, modal); }
+    grid.innerHTML = listings.map(listingCardHtml).join('');
+  }
+
+  function listingCardHtml(l) {
+    const imgSrc  = l.image_filename ? staticBase + l.image_filename : '';
+    const imgHtml = imgSrc
+      ? '<img src="' + escAttr(imgSrc) + '" alt="' + escAttr(l.title) + '">'
+      : '<div class="listing-image-placeholder"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>';
+    const isHyres  = l.listing_type === 'Hyres';
+    const descShort = (l.description || '').length > 90 ? l.description.slice(0, 90) + '…' : (l.description || '');
+    const chatUrl  = (currentUserId && l.user_id !== currentUserId) ? chatUrlTpl.replace('/0', '/' + l.user_id) : '';
+    const delUrl   = (currentUserId && l.user_id === currentUserId)  ? delUrlTpl.replace('/0', '/' + l.id) : '';
+    const chatBtn  = chatUrl
+      ? '<a href="' + escAttr(chatUrl) + '" class="listing-chat-btn" aria-label="Chatta med säljaren"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 2H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h3l3 3 3-3h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg></a>' : '';
+    const delBtn   = delUrl
+      ? '<form method="post" action="' + escAttr(delUrl) + '" onsubmit="return confirm(\'Ta bort annonsen?\')"><button class="listing-delete-btn" type="submit" aria-label="Ta bort"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></form>' : '';
+    return '<div class="listing-card"' +
+      ' data-id="' + l.id + '" data-title="' + escAttr(l.title) + '" data-description="' + escAttr(l.description) + '"' +
+      ' data-price="' + parseInt(l.price, 10) + '" data-category="' + escAttr(l.category) + '"' +
+      ' data-listing-type="' + escAttr(l.listing_type) + '" data-image="' + escAttr(imgSrc) + '"' +
+      ' data-user-id="' + l.user_id + '" data-seller-name="' + escAttr(l.seller_name) + '" data-date="' + escAttr(l.date) + '"' +
+      (chatUrl ? ' data-chat-url="' + escAttr(chatUrl) + '"' : '') +
+      (delUrl  ? ' data-delete-url="' + escAttr(delUrl) + '"' : '') + '>' +
+      '<div class="listing-image">' + imgHtml + '</div>' +
+      '<div class="listing-body">' +
+        '<div class="listing-badges">' +
+          '<span class="listing-badge listing-badge--category">' + escText(l.category) + '</span>' +
+          '<span class="listing-badge listing-badge--type' + (isHyres ? ' listing-badge--hyres' : '') + '">' + escText(l.listing_type) + '</span>' +
+        '</div>' +
+        '<h3 class="listing-title">' + escText(l.title) + '</h3>' +
+        '<p class="listing-price">' + parseInt(l.price, 10).toLocaleString('sv-SE') + ' kr</p>' +
+        (descShort ? '<p class="listing-desc">' + escText(descShort) + '</p>' : '') +
+        '<div class="listing-footer">' +
+          '<span class="listing-seller">' + escText(l.seller_name) + '</span>' +
+          '<div class="listing-actions">' + chatBtn + delBtn + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function escText(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+  function escAttr(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 }());
 </script>
 {% endblock %}
