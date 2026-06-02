@@ -55,7 +55,7 @@
       <div class="announcement-body">
         <div class="announcement-meta-top">
           <span class="announcement-badge announcement-badge--{{ ann.category | lower | replace('ö','o') | replace('ä','a') | replace('å','a') | replace(' ','') }}">{{ ann.category }}</span>
-          <span class="announcement-date">{{ ann.created_at.strftime('%-d %b') if ann.created_at else '' }}</span>
+          <span class="announcement-date">{% if ann.created_at %}{{ ann.created_at.day }} {{ ann.created_at.strftime('%b') }}{% endif %}</span>
         </div>
         <h3 class="announcement-title">{{ ann.title }}</h3>
         <p class="announcement-desc">{{ ann.description }}</p>
