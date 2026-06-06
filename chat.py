@@ -4,8 +4,19 @@ Handels all functions relates to the chat
 
 from flask import Blueprint, render_template, redirect, session, url_for, jsonify
 from db import get_connection
-from flask_socketio import emit, join_room, leave_room
 from extensions import socketio
+
+try:
+    from flask_socketio import emit, join_room, leave_room
+except ModuleNotFoundError:
+    def emit(*args, **kwargs):
+        return None
+
+    def join_room(*args, **kwargs):
+        return None
+
+    def leave_room(*args, **kwargs):
+        return None
 
 chat = Blueprint("chat", __name__)
 
@@ -388,4 +399,3 @@ def unread_messages_count():
     conn.close()
 
     return jsonify({"count": count})
-
