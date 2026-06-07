@@ -515,6 +515,11 @@ main.chat-page{
     color: #222;
 }
 
+.booking-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
 
 /* =========================================================

@@ -21,15 +21,26 @@
                     {% endif %}
                     <div class="tutor-program">{{ b.meeting_time.strftime('%d %b %Y, %H:%M') }}</div>
                 </div>
-                <span class="tutor-course-tag">{{ b.status }}</span>
+                <span class="tutor-course-tag">Accepterad</span>
             </div>
-            <p class="tutor-bio">
-                {% if b.sender_id == user_id %}
-                Bokad med: {{ b.receiver_name }}
-                {% else %}
-                Bokad med: {{ b.sender_name }}
-                {% endif %}
-            </p>
+           <div class="booking-bottom">
+                <p class="tutor-bio">
+                    {% if b.sender_id == user_id %}
+                        Bokad med: {{ b.receiver_name }}
+                    {% else %}
+                        Bokad med: {{ b.sender_name }}
+                    {% endif %}
+                </p>
+
+                <form method="POST"
+                    action="{{ url_for('chat.cancel_booking', contract_id=b.id) }}"
+                    onsubmit="return confirm('Bokningen försvinner om du avbokar. Vill du avboka?');">
+                    
+                    <button type="submit" class="search-btn">
+                        Avboka
+                    </button>
+                </form>
+            </div>
         </div>
         {% endfor %}
     </div>
