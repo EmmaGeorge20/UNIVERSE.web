@@ -122,7 +122,9 @@
                 </p>
             </div>
             <div class="footer-meta">
-                <a href="{{ url_for('admin_login') }}">Admin</a>
+               {% if not session.get("user_id") %}
+                    <a href="{{ url_for('admin_login') }}">Admin</a>
+               {% endif %}
                 <span>© 2026 UNI:VERSE</span>
                 <span>Säkerhetsinformation</span>
             </div>
