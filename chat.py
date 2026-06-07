@@ -391,6 +391,15 @@ def unread_messages_count():
 
 @chat.route("/cancel_booking/<int:contract_id>", methods=["POST"])
 def cancel_booking(contract_id):
+    '''
+    Changes status in databas of a booking from accepted to cacelled
+
+    Args: 
+        contract_id - the id in the database of the booking that is cancelled
+
+    Returns:
+        redirect(url_for("booking")) - Rediredts you to the bookingpage 
+    '''
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
 
