@@ -399,3 +399,37 @@ def unread_messages_count():
     conn.close()
 
     return jsonify({"count": count})
+
+@chat.route("/cancel_booking/<int:contract_id>", methods=["POST"])
+def cancel_booking(contract_id):
+    '''
+    Changes status in databas of a booking from accepted to cacelled
+
+    Args: 
+        contract_id - the id in the database of the booking that is cancelled
+
+    Returns:
+        redirect(url_for("booking")) - Rediredts you to the bookingpage 
+    '''
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    user_id = session["user_id"]
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE contracts
+        SET status = 'cancelled'
+        WHERE id = %s
+        AND (sender_id = %s OR receiver_id = %s)
+    """, (contract_id, user_id, user_id))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return redirect(url_for("booking"))
+
