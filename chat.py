@@ -10,12 +10,15 @@ try:
     from flask_socketio import emit, join_room, leave_room
 except ModuleNotFoundError:
     def emit(*args, **kwargs):
+        """Fallback used when flask_socketio is not installed; does nothing."""
         return None
 
     def join_room(*args, **kwargs):
+        """Fallback used when flask_socketio is not installed; does nothing."""
         return None
 
     def leave_room(*args, **kwargs):
+        """Fallback used when flask_socketio is not installed; does nothing."""
         return None
 
 chat = Blueprint("chat", __name__)
@@ -182,6 +185,7 @@ def chats_page():
    
 @socketio.on("join_notification_room")
 def join_notification_room(data):
+    """Adds the current user to their personal notification room so they receive live notification events."""
     user_id = session.get("user_id")
     if user_id:
         join_room(f"notification_{user_id}")
@@ -273,6 +277,7 @@ def get_room_name(user1_id, user2_id):
     return f"chat_{ids[0]}_{ids[1]}"
 
 def get_or_create_chat(user_id, receiver_id):
+    """Returns the id of the existing chat between two users, creating one if it doesn't exist yet."""
     conn = get_connection()
     cur = conn.cursor()
 
@@ -378,6 +383,7 @@ def handle_booking_response(data):
 
 @chat.route("/api/unread_messages_count")
 def unread_messages_count():
+    """Returns the number of unread messages for the logged-in user as JSON."""
     if "user_id" not in session:
         return jsonify({"count": 0})
 

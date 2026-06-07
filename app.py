@@ -24,6 +24,7 @@ app.register_blueprint(profile_bp)
 app.register_blueprint(chat)
 
 def run_migrations():
+    """Applies incremental schema changes and creates tables that may not exist yet."""
     conn = get_connection()
     if conn:
         cur = conn.cursor()
@@ -67,17 +68,20 @@ run_migrations()
 
 @app.route("/")
 def index():
+    """Redirects visitors from the root URL to the home page."""
     return redirect(url_for("home"))
 
 
 @app.route("/home")
 def home():
+    """Renders the home page, indicating whether the visitor is logged in."""
     logged_in = "user_id" in session
     return render_template("index.html", logged_in=logged_in)
 
 
 @app.route("/search")
 def search():
+    """Searches active tutors by course code or name and renders the results page."""
     query = request.args.get("q", "").strip()
     tutors = []
 
@@ -135,6 +139,7 @@ def search():
 
 @app.route("/bli-handledare", methods=["GET", "POST"])
 def bli_handledare():
+    """Handles tutor applications: new sign-ups and adding courses for already-approved tutors."""
     email = session.get("user")
     if not email:
         return redirect(url_for("auth.login"))
@@ -284,6 +289,7 @@ def send_notification(user_id, message):
 
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
+    """Authenticates an admin against the admins table and starts an admin session."""
     error = None
     if request.method == "POST":
         email = request.form.get("email", "").strip()
@@ -313,6 +319,7 @@ def admin_login():
 
 @app.route("/admin/dashboard")
 def admin_dashboard():
+    """Renders the admin dashboard with pending tutor applications and registered students."""
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
@@ -379,6 +386,7 @@ def admin_dashboard():
 
 @app.route("/admin/godkann/<int:tutor_id>", methods=["POST"])
 def admin_godkann(tutor_id):
+    """Approves a pending tutor application and notifies the applicant."""
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
@@ -409,6 +417,7 @@ def admin_godkann(tutor_id):
 
 @app.route("/admin/neka/<int:tutor_id>", methods=["POST"])
 def admin_neka(tutor_id):
+    """Denies a pending tutor application and notifies the applicant."""
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
@@ -439,6 +448,7 @@ def admin_neka(tutor_id):
 
 @app.route("/admin/ta-bort-student/<int:user_id>", methods=["POST"])
 def admin_ta_bort_student(user_id):
+    """Deletes a student account from the database."""
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
@@ -457,6 +467,7 @@ def admin_ta_bort_student(user_id):
 
 @app.route("/admin/ta-bort-handledare/<int:tutor_id>", methods=["POST"])
 def admin_ta_bort_handledare(tutor_id):
+    """Deletes a tutor record from the database."""
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
@@ -475,12 +486,14 @@ def admin_ta_bort_handledare(tutor_id):
 
 @app.route("/admin/logout")
 def admin_logout():
+    """Ends the admin session and redirects to the admin login page."""
     session.pop("admin", None)
     return redirect(url_for("admin_login"))
 
 
 @app.route("/booking")
 def booking():
+    """Renders the logged-in user's upcoming and past accepted bookings."""
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
 
@@ -553,16 +566,19 @@ def booking():
 
 @app.route("/messages")
 def messages():
+    """Renders the placeholder messages page."""
     return render_template("page.html", title="Meddelanden")
 
 
 @app.route("/help")
 def help_page():
+    """Renders the placeholder help page."""
     return render_template("page.html", title="Hjälp")
 
 
 @app.route("/marketplace")
 def marketplace():
+    """Renders the marketplace with listings filtered by category, type, price range and search query."""
     category     = request.args.get("category", "").strip()
     listing_type = request.args.get("type", "").strip()
     min_price    = request.args.get("min_price", "").strip()
@@ -640,6 +656,7 @@ def marketplace():
 
 @app.route("/marketplace/ny", methods=["GET", "POST"])
 def marketplace_ny():
+    """Handles creation of a new marketplace listing, including an optional image upload."""
     if not session.get("user_id"):
         return redirect(url_for("auth.login"))
 
@@ -687,6 +704,7 @@ def marketplace_ny():
 
 @app.route("/marketplace/ta-bort/<int:listing_id>", methods=["POST"])
 def marketplace_ta_bort(listing_id):
+    """Deletes a marketplace listing that belongs to the current user."""
     user_id = session.get("user_id")
     if not user_id:
         return redirect(url_for("auth.login"))
@@ -709,11 +727,13 @@ def marketplace_ta_bort(listing_id):
 
 @app.route("/news")
 def news():
+    """Renders the placeholder news page."""
     return render_template("page.html", title="Nyheter")
 
 
 @app.route("/announcements")
 def announcements():
+    """Renders active announcements filtered by category and search query."""
     category = request.args.get("category", "").strip()
     q        = request.args.get("q", "").strip()
     announcements_list = []
@@ -766,6 +786,7 @@ def announcements():
 
 @app.route("/announcements/new", methods=["GET", "POST"])
 def announcements_new():
+    """Handles creation of a new announcement, including an optional image upload."""
     user_id = session.get("user_id")
     admin_email = session.get("admin")
 
@@ -824,6 +845,7 @@ def announcements_new():
 
 @app.route("/announcements/delete/<int:announcement_id>", methods=["POST"])
 def announcements_delete(announcement_id):
+    """Deletes an announcement: admins may remove any post, users only their own."""
     user_id = session.get("user_id")
     if not user_id and not session.get("admin"):
         return redirect(url_for("auth.login"))
@@ -847,6 +869,7 @@ def announcements_delete(announcement_id):
 
 @app.route("/api/search/tutors")
 def api_search_tutors():
+    """Returns active tutors matching a course search query as JSON, for live search."""
     query = request.args.get("q", "").strip()
     tutors = []
     conn = get_connection()
@@ -895,6 +918,7 @@ def api_search_tutors():
 
 @app.route("/api/search/marketplace")
 def api_search_marketplace():
+    """Returns marketplace listings matching the given filters as JSON, for live search."""
     q            = request.args.get("q", "").strip()
     category     = request.args.get("category", "").strip()
     listing_type = request.args.get("type", "").strip()
@@ -958,6 +982,7 @@ def api_search_marketplace():
 
 @app.route("/api/search/announcements")
 def api_search_announcements():
+    """Returns active announcements matching a search query and category as JSON, for live search."""
     q        = request.args.get("q", "").strip()
     category = request.args.get("category", "").strip()
     items = []
@@ -1003,6 +1028,7 @@ def api_search_announcements():
 
 @app.route("/admin/announcements/new", methods=["GET", "POST"])
 def admin_announcements_new():
+    """Handles creation of an announcement posted on behalf of the admin team."""
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
@@ -1041,11 +1067,13 @@ def admin_announcements_new():
 
 @app.route("/community")
 def community():
+    """Renders the placeholder community page."""
     return render_template("page.html", title="Community")
 
 
 @app.route("/profile")
 def profile():
+    """Renders the logged-in user's profile, including whether they are an approved tutor."""
     email = session.get("user")
     if not email:
         return redirect(url_for("auth.login"))
@@ -1094,6 +1122,7 @@ def profile():
 
 @app.route("/notifications/count")
 def notifications_count():
+    """Returns the number of unread notifications for the logged-in user as JSON."""
     email = session.get("user")
     if not email:
         return jsonify({"count": 0})
@@ -1120,6 +1149,7 @@ def notifications_count():
 
 @app.route("/notifications")
 def notifications():
+    """Returns the logged-in user's most recent notifications as JSON and marks them as read."""
     email = session.get("user")
     if not email:
         return jsonify([])

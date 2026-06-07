@@ -1,5 +1,5 @@
 /* =========================================================
-   BASE / GEMENSAM CSS
+   BASE / SHARED CSS
    ========================================================= */
 
 
@@ -294,7 +294,7 @@ main.chat-page{
     margin-top: 2rem;
 }
 
-/* Vänster sida */
+/* Left side */
 .chat-sidebar {
     background-color: #ffffff;
     border-right: 1px solid #ddd;
@@ -337,7 +337,7 @@ main.chat-page{
     text-overflow: ellipsis;
 }
 
-/* Höger sida */
+/* Right side */
 .chat-page section {
     display: flex;
     flex-direction: column;
@@ -396,7 +396,7 @@ main.chat-page{
     border-bottom-left-radius: 5px;
 }
 
-/* Input längst ner */
+/* Input at the bottom */
 .inputs {
     display: flex;
     gap: 10px;

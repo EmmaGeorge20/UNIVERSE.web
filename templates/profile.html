@@ -20,16 +20,16 @@
   </section>
 {% else %}
 
- <!-- Profilbild och användarinformation -->
+ <!-- Profile picture and user information -->
   
   <section class="profile-hero">
- <!-- Bakgrundsbild -->
+ <!-- Background image -->
     <div class="profile-hero-bg">
       <img src="{{ url_for('static', filename='profile_background.png') }}" alt="" aria-hidden="true">
       <span class="ai-image-label profile-ai-label">AI-genererad bild (ChatGPT)</span>
       <div class="profile-hero-overlay"></div>
     </div>
- <!-- Namn och profilbild -->
+ <!-- Name and profile picture -->
     <div class="profile-hero-content">
       <div class="profile-identity">
         <form class="profile-avatar-form" method="POST" enctype="multipart/form-data">
@@ -58,9 +58,9 @@
     </div>
   </section>
 
-  <!-- Profilinnehåll -->
+  <!-- Profile content -->
   <div class="profile-body">
-    <!-- Om mig och kontaktuppgifter -->
+    <!-- About me and contact details -->
     <div class="profile-main">
       <div class="profile-card">
         <div class="profile-card-heading">
@@ -77,7 +77,7 @@
         <p class="profile-about-text">{{ user.about_text }}</p>
       </div>
       {% if is_tutor and tutor_courses %}
-      <!-- Handledarens kurser -->
+      <!-- Tutor's courses -->
       <div class="profile-card">
         <div class="profile-card-heading">
           <h2>Mina handledarekurser</h2>
@@ -99,7 +99,7 @@
       </div>
       {% endif %}
 
-      <!-- Kontaktuppgifter -->
+      <!-- Contact details -->
       <div class="profile-card">
         <div class="profile-card-heading">
           <h2>Kontaktuppgifter</h2>
@@ -145,7 +145,7 @@
     </div>
 
     
-    <!-- Nästa tider -->
+    <!-- Upcoming times -->
     <aside class="profile-sidebar">
       <div class="profile-card">
         <h2>Nästa tider</h2>

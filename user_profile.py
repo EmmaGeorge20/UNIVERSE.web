@@ -18,6 +18,7 @@ ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 
 
 def image_extension(filename):
+    """Returns the file's lowercase extension if it's an allowed image type, otherwise None."""
     if "." not in filename:
         return None
     extension = filename.rsplit(".", 1)[1].lower()
@@ -27,6 +28,7 @@ def image_extension(filename):
 
 
 def profile_image_key(email):
+    """Returns the filename key used to store a user's profile image, based on their id or email."""
     user_id = session.get("user_id")
     if user_id:
         return f"user_{user_id}"
@@ -34,6 +36,7 @@ def profile_image_key(email):
 
 
 def profile_image_path(email):
+    """Returns the static path to the user's saved profile image, or None if they don't have one."""
     key = profile_image_key(email)
     for extension in ALLOWED_IMAGE_EXTENSIONS:
         path = os.path.join(PROFILE_IMAGE_FOLDER, f"{key}.{extension}")
@@ -43,6 +46,7 @@ def profile_image_path(email):
 
 
 def save_profile_image(email):
+    """Validates and stores an uploaded profile image, replacing any previous image the user had."""
     image = request.files.get("profile_image")
     if not image or not image.filename:
         return
@@ -62,6 +66,7 @@ def save_profile_image(email):
     image.save(os.path.join(PROFILE_IMAGE_FOLDER, f"{key}.{extension}"))
 
 def update_contact_details(email):
+    """Saves the submitted phone, school and program values to the user's record."""
     phone = request.form.get("phone", "").strip()
     school = request.form.get("school", "").strip()
     program = request.form.get("program", "").strip()
@@ -89,11 +94,13 @@ def update_contact_details(email):
 
 
 def update_about_text(email):
+    """Stores the user's submitted profile description text in the session."""
     session[f"profile_about_{email}"] = request.form.get("about_text", "").strip()
 
 
 @profile_bp.route("/profile", methods=["GET", "POST"])
 def profile_page():
+    """Renders the profile page and handles updates to the image, contact details or about text."""
     email = session.get("user")
     if not email or email == "guest":
         return render_template("profile.html", login_required=True)

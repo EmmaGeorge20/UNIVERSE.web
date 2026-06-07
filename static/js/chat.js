@@ -1,9 +1,13 @@
-var socketio = io(); 
+// chat.js
+// Handles real-time messaging and booking requests on the chat page via Socket.IO.
+
+var socketio = io();
 
 const chat = document.getElementById("chat");
 const messageInput = document.getElementById("message");
 
 
+// Joins the Socket.IO room for the chat with the selected receiver
 socketio.emit("join_chat", {
     receiver_id: RECEIVER_ID
 });
@@ -15,6 +19,8 @@ function scrollToBottom() {
 }
 
 window.addEventListener("load", scrollToBottom);
+
+// Sends the typed message to the server and clears the input field
 const sendMessage = () => {
     const message = messageInput.value.trim();
 
@@ -30,6 +36,7 @@ const sendMessage = () => {
     messageInput.value = "";
 };
 
+// Renders an incoming message bubble as soon as it arrives from the server
 socketio.on("receive_message", function(data) {
     addMessage(data);
 });
@@ -56,6 +63,7 @@ function toggleBookingForm() {
     form.style.display = form.style.display === "none" ? "block" : "none";
 }
 
+// Sends a booking request for the selected course and meeting time
 function sendBooking() {
     const meetingTime = document.getElementById("booking-time").value;
     const courseId = document.getElementById("booking-course").value;
@@ -75,6 +83,7 @@ function sendBooking() {
     toggleBookingForm();
 }
 
+// Renders an incoming booking event: a "waiting" card for the sender, or accept/reject buttons for the receiver
 socketio.on("receive_booking", function(data) {
     const msg = document.createElement("div");
     msg.classList.add("message", "booking-card");
@@ -103,6 +112,7 @@ socketio.on("receive_booking", function(data) {
     scrollToBottom();
 });
 
+// Sends the receiver's accept/reject decision for a booking request back to the server
 function respondBooking(contractId, status) {
     socketio.emit("respond_booking", {
         contract_id: contractId,
@@ -110,6 +120,7 @@ function respondBooking(contractId, status) {
     });
 }
 
+// Delegates clicks on accept/reject buttons inside booking cards to respondBooking
 document.addEventListener("click", function(e) {
     if (e.target.classList.contains("respond-btn")) {
         const contractId = e.target.dataset.id;
@@ -118,6 +129,7 @@ document.addEventListener("click", function(e) {
     }
 });
 
+// Updates the booking card UI once the receiver has accepted or rejected the request
 socketio.on("booking_response", function(data) {
     const status = data.status === "accepted" ? "Accepterad" : "Nekad";
     
